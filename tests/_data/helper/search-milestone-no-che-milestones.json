@@ -1,0 +1,55 @@
+{
+  "rateLimit": {
+    "cost": 1,
+    "remaining": 4999,
+    "resetAt": "2020-08-03T16:51:39Z"
+  },
+  "search": {
+    "pageInfo": {
+      "endCursor": "abcd",
+      "hasNextPage": false
+    },
+    "repositoryCount": 3,
+    "edges": [
+      {
+        "node": {
+          "name": "che-docs",
+          "url": "https://github.com/eclipse/che-docs",
+          "owner": {
+            "login": "eclipse"
+          },
+          "milestones": {
+            "nodes": [
+              {
+                "title": "7.20",
+                "number": 32,
+                "description": null,
+                "state": "OPEN",
+                "dueOn": null
+              },
+              {
+                "title": "7.17",
+                "number": 31,
+                "description": null,
+                "state": "OPEN",
+                "dueOn": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "node": {
+          "name": "che-sidecar-java",
+          "url": "https://github.com/che-dockerfiles/che-sidecar-java",
+          "owner": {
+            "login": "che-dockerfiles"
+          },
+          "milestones": {
+            "nodes": []
+          }
+        }
+      }
+    ]
+  }
+}

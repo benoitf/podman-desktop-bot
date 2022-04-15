@@ -1,0 +1,25 @@
+{
+  "token": "***",
+  "job": "build",
+  "ref": "refs/heads/master",
+  "sha": "010bb5340f4503e3579763e03df9224acaa510d7",
+  "repository": "benoitf/demo-gh-event",
+  "repository_owner": "benoitf",
+  "repositoryUrl": "git://github.com/benoitf/demo-gh-event.git",
+  "run_id": "115657004",
+  "run_number": "1",
+  "actor": "benoitf",
+  "workflow": "cron",
+  "head_ref": "",
+  "base_ref": "",
+  "event_name": "schedule",
+  "event": {
+    "schedule": "*/5 * * * *"
+  },
+  "url": "https://github.com",
+  "api_url": "https://api.github.com",
+  "graphql_url": "https://api.github.com/graphql",
+  "workspace": "/home/runner/work/demo-gh-event/demo-gh-event",
+  "action": "run",
+  "event_path": "/home/runner/work/_temp/_github_workflow/event.json"
+}
