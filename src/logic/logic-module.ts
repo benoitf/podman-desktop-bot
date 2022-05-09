@@ -17,6 +17,7 @@ const logicModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind(NotifyLatestStargazersLogic).to(NotifyLatestStargazersLogic).inSingletonScope();
   bind(ScheduleListener).toService(NotifyLatestStargazersLogic);
+  bind(PushListener).toService(NotifyLatestStargazersLogic);
   bind(Logic).toService(NotifyLatestStargazersLogic);
 });
 

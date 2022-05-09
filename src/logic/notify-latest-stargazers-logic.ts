@@ -5,9 +5,10 @@ import { PullRequestInfo } from '../info/pull-request-info';
 import { ScheduleListener } from '../api/schedule-listener';
 import { SlackHelper } from '../helpers/slack-helper';
 import { StargazerHelper } from '../helpers/stargazer-helper';
+import { PushListener } from '../api/push-listener';
 
 @injectable()
-export class NotifyLatestStargazersLogic implements Logic, ScheduleListener {
+export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, PushListener {
   @inject(StargazerHelper)
   private stargazerHelper: StargazerHelper;
 
@@ -22,7 +23,6 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener {
 
   async execute(): Promise<void> {
     // grab recent stargazers
-    console.log('Grab stargazers...');
     const recentStargazers = await this.stargazerHelper.getRecentStargazers();
     console.log('recent stargazers length is', recentStargazers.length);
     await Promise.all(
