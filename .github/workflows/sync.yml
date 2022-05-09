@@ -33,6 +33,8 @@ jobs:
         export NEW_TIME=$(date +"%Y-%m-%dT%H:%M:%S%z")
         echo "Updating info file with new check time: $NEW_TIME"
         jq --arg date "$NEW_TIME" '.stargazers.lastCheck = $date' info.json
+        git status
+        git diff
         git add info.json
         git commit -m "Update last check time"
         git push origin info
