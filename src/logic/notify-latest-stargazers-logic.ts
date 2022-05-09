@@ -6,11 +6,6 @@ import { ScheduleListener } from '../api/schedule-listener';
 import { SlackHelper } from '../helpers/slack-helper';
 import { StargazerHelper } from '../helpers/stargazer-helper';
 
-export interface MilestoneDefinition {
-  pullRequestInfo: PullRequestInfo;
-  milestone: string;
-}
-
 @injectable()
 export class NotifyLatestStargazersLogic implements Logic, ScheduleListener {
   @inject(StargazerHelper)
@@ -27,6 +22,7 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener {
 
   async execute(): Promise<void> {
     // grab recent stargazers
+    console.log('Grab stargazers...');
     const recentStargazers = await this.stargazerHelper.getRecentStargazers();
     console.log('recent stargazers length is', recentStargazers.length);
     await Promise.all(
