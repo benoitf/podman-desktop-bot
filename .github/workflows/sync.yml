@@ -14,6 +14,7 @@ jobs:
     env:
       INPUT_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       INPUT_WRITE_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
