@@ -19,6 +19,22 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '16'
+    - name: Update last check time
+      run: |
+        # checkout the info branch
+        git clone --branch info https://github.com/benoitf/podman-desktop-bot /tmp/podman-desktop-bot-info
+        cd /tmp/podman-desktop-bot-info
+        # get the last check time from the file info
+        LAST_TIME_CHECK=$(jq .stargazers.lastCheck info.json)
+        # update the last check time
+        export NEW_TIME=$(date +"%Y-%m-%dT%H:%M:%S%z")
+        jq --arg date "$NEW_TIME" '.stargazers.lastCheck = $date' info.json
+        git add info.json
+        git commit -m "Update last check time"
+        git push origin info
+        # store the new value as environment variable
+        echo "INPUT_LAST_STARGAZERS_CHECK=$(echo $NEW_TIME)" >> $GITHUB_ENV
+        echo "New time for stargazers check: $NEW_TIME"
     - name: synchronize
       run: |
         yarn
