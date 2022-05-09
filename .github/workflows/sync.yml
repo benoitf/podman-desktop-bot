@@ -37,7 +37,7 @@ jobs:
         mv info.json.new info.json
         git add info.json
         git commit -m "Update last check time"
-        git push origin info
+        git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/benoitf/podman-desktop-bot.git" info
         # store the new value as environment variable
         echo "INPUT_LAST_STARGAZERS_CHECK=$(echo $NEW_TIME)" >> $GITHUB_ENV
         echo "New time for stargazers check: $NEW_TIME"
