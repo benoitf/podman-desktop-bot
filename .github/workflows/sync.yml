@@ -21,6 +21,8 @@ jobs:
         node-version: '16'
     - name: Update last check time
       run: |
+        git config --global user.email "bot@podman-desktop.io"
+        git config --global user.name "Podman Desktop Bot"
         # checkout the info branch
         git clone --branch info https://github.com/benoitf/podman-desktop-bot /tmp/podman-desktop-bot-info
         cd /tmp/podman-desktop-bot-info
