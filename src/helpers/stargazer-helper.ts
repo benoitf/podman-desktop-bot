@@ -22,6 +22,7 @@ export class StargazerHelper {
   private stargazerInfoBuilder: StargazerInfoBuilder;
 
   public async getRecentStargazers(): Promise<StargazerInfo[]> {
+    console.log('getRecentStargazers/LAST_STARGAZERS_CHECK=' + this.lastStargazersCheck);
     // last check performed
     const lastCheck = moment(this.lastStargazersCheck);
     const recentStargazers = await this.doGetRecentStargazers(lastCheck);
