@@ -28,6 +28,7 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener {
   async execute(): Promise<void> {
     // grab recent stargazers
     const recentStargazers = await this.stargazerHelper.getRecentStargazers();
+    console.log('recent stargazers length is', recentStargazers.length);
     await Promise.all(
       recentStargazers.map(async stargazer => {
         const elements: { type: string; text?: string; image_url?: string; alt_text?: string }[] = [];
