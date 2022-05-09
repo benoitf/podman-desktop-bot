@@ -1,4 +1,5 @@
 import { inject, injectable, named } from 'inversify';
+
 import { graphql } from '@octokit/graphql';
 
 export interface TagDefinition {
@@ -8,13 +9,11 @@ export interface TagDefinition {
 
 @injectable()
 export class TagsHelper {
-
   @inject('string')
   @named('GRAPHQL_READ_TOKEN')
   private graphqlReadToken: string;
 
   public async getLatestTags(): Promise<Map<string, TagDefinition[]>> {
-
     const latestTagSearch = await this.doGetLatestTags('repo:containers/podman-desktop');
 
     // received array of edges looking like:

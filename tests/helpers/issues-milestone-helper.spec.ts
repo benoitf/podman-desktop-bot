@@ -7,7 +7,7 @@ import { Container } from 'inversify';
 import { IssueMilestoneHelper } from '../../src/helpers/issue-milestone-helper';
 import { IssuesHelper } from '../../src/helpers/issue-helper';
 import { PullRequestInfoLinkedIssuesExtractor } from '../../src/info/pull-request-info-linked-issues-extractor';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 describe('Test Helper IssuesMilestoneHelper', () => {
   let container: Container;
@@ -33,8 +33,8 @@ describe('Test Helper IssuesMilestoneHelper', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const octokit = {
       rest: {
-      issues: { listMilestones: jest.fn(), update: jest.fn(), createMilestone: jest.fn() },
-      }
+        issues: { listMilestones: jest.fn(), update: jest.fn(), createMilestone: jest.fn() },
+      },
     };
 
     container.bind('Octokit').toConstantValue(octokit);
@@ -59,7 +59,8 @@ describe('Test Helper IssuesMilestoneHelper', () => {
     await addMilestoneHelper.setMilestone(milestoneToAdd, issueInfo);
 
     expect(octokit.rest.issues.listMilestones).toBeCalled();
-    const listParams: RestEndpointMethodTypes["issues"]["listMilestones"]["parameters"] = octokit.rest.issues.listMilestones.mock.calls[0][0];
+    const listParams: RestEndpointMethodTypes['issues']['listMilestones']['parameters'] =
+      octokit.rest.issues.listMilestones.mock.calls[0][0];
     expect(listParams.owner).toBe(issueInfo.owner);
     expect(listParams.repo).toBe(issueInfo.repo);
 
@@ -67,7 +68,8 @@ describe('Test Helper IssuesMilestoneHelper', () => {
     expect(octokit.rest.issues.createMilestone).toBeCalledTimes(0);
 
     expect(octokit.rest.issues.update).toBeCalled();
-    const issueUpdateParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.update.mock.calls[0][0];
+    const issueUpdateParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.update.mock.calls[0][0];
     expect(issueUpdateParams.milestone).toBe(milestoneNumber);
     expect(issueUpdateParams.repo).toBe(issueInfo.repo);
     expect(issueUpdateParams.owner).toBe(issueInfo.owner);
@@ -79,8 +81,8 @@ describe('Test Helper IssuesMilestoneHelper', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const octokit = {
       rest: {
-      issues: { listMilestones: jest.fn(), update: jest.fn(), createMilestone: jest.fn() },
-      }
+        issues: { listMilestones: jest.fn(), update: jest.fn(), createMilestone: jest.fn() },
+      },
     };
 
     container.bind('Octokit').toConstantValue(octokit);
@@ -108,19 +110,21 @@ describe('Test Helper IssuesMilestoneHelper', () => {
     await addMilestoneHelper.setMilestone(milestoneToAdd, issueInfo);
 
     expect(octokit.rest.issues.listMilestones).toBeCalled();
-    const listParams: RestEndpointMethodTypes["issues"]["listMilestones"]["parameters"] = octokit.rest.issues.listMilestones.mock.calls[0][0];
+    const listParams: RestEndpointMethodTypes['issues']['listMilestones']['parameters'] =
+      octokit.rest.issues.listMilestones.mock.calls[0][0];
     expect(listParams.owner).toBe(issueInfo.owner);
     expect(listParams.repo).toBe(issueInfo.repo);
 
     expect(octokit.rest.issues.createMilestone).toBeCalled();
-    const createMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.createMilestone.mock.calls[0][0];
+    const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.createMilestone.mock.calls[0][0];
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.owner).toBe(issueInfo.owner);
     expect(createMilestoneParams.repo).toBe(issueInfo.repo);
     // do not create as it exists
 
     expect(octokit.rest.issues.update).toBeCalled();
-    const issueUpdateParams: RestEndpointMethodTypes["issues"]["update"]["parameters"] = octokit.rest.issues.update.mock.calls[0][0];
+    const issueUpdateParams: RestEndpointMethodTypes['issues']['update']['parameters'] = octokit.rest.issues.update.mock.calls[0][0];
     expect(issueUpdateParams.milestone).toBe(milestoneNumber);
     expect(issueUpdateParams.repo).toBe(issueInfo.repo);
     expect(issueUpdateParams.owner).toBe(issueInfo.owner);

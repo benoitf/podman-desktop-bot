@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { AddLabelHelper } from '../src/helpers/add-label-helper';
 import { Analysis } from '../src/analysis';
+import { ApplyMilestoneOnPullRequestsLogic } from '../src/logic/apply-milestone-on-pull-requests-logic';
 import { Container } from 'inversify';
 import { Handler } from '../src/api/handler';
 import { InversifyBinding } from '../src/inversify-binding';
@@ -10,13 +11,12 @@ import { IssuesHelper } from '../src/helpers/issue-helper';
 import { Logic } from '../src/api/logic';
 import { MilestoneHelper } from '../src/helpers/milestone-helper';
 import { OctokitBuilder } from '../src/github/octokit-builder';
+import { PodmanDesktopVersionFetcher } from '../src/fetchers/podman-desktop-version-fetcher';
 import { PullRequestInfoBuilder } from '../src/info/pull-request-info';
 import { PushHandler } from '../src/handler/push-handler';
 import { PushListener } from '../src/api/push-listener';
 import { ScheduleHandler } from '../src/handler/schedule-handler';
 import { ScheduleListener } from '../src/api/schedule-listener';
-import { ApplyMilestoneOnPullRequestsLogic } from '../src/logic/apply-milestone-on-pull-requests-logic';
-import { PodmanDesktopVersionFetcher } from '../src/fetchers/podman-desktop-version-fetcher';
 
 describe('Test InversifyBinding', () => {
   test('test bindings', async () => {

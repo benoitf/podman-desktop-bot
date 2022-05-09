@@ -1,7 +1,8 @@
 import { IssueInfo, IssueInfoBuilder } from '../info/issue-info';
 import { inject, injectable, named } from 'inversify';
+
 import { GitHub } from '@actions/github/lib/utils';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 type Octokit = InstanceType<typeof GitHub>;
 
 @injectable()
@@ -14,7 +15,7 @@ export class IssuesHelper {
   private octokit: Octokit;
 
   public async isFirstTime(issueInfo: IssueInfo): Promise<boolean> {
-    const issuesListParams: RestEndpointMethodTypes["issues"]["listForRepo"]["parameters"] = {
+    const issuesListParams: RestEndpointMethodTypes['issues']['listForRepo']['parameters'] = {
       creator: issueInfo.author,
       state: 'all',
       owner: issueInfo.owner,
@@ -36,7 +37,7 @@ export class IssuesHelper {
     }
 
     // eslint-disable-next-line @typescript-eslint/camelcase
-    const issueGetParam: RestEndpointMethodTypes["issues"]["get"]["parameters"] = {
+    const issueGetParam: RestEndpointMethodTypes['issues']['get']['parameters'] = {
       owner: parsing[1],
       repo: parsing[2],
       // eslint-disable-next-line @typescript-eslint/camelcase
@@ -46,11 +47,11 @@ export class IssuesHelper {
     const response = await this.octokit.rest.issues.get(issueGetParam);
     const issueGetReponse = response.data;
 
-    const labels: string[] = issueGetReponse.labels.map((label: any)=> label?.name);
+    const labels: string[] = issueGetReponse.labels.map((label: any) => label?.name);
 
     return this.issueInfoBuilder
       .build()
-      .withBody(issueGetReponse.body || '')
+      .withBody(issueGetReponse.body || '')
       .withAuthor(issueGetReponse.user?.login || '')
       .withHtmlLink(issueGetReponse.html_url)
       .withNumber(issueGetReponse.number)

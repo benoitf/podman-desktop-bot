@@ -4,9 +4,9 @@ import * as semver from 'semver';
 import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
 import { inject, injectable, named } from 'inversify';
 
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
 import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
 import { Logic } from '../api/logic';
+import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
 import { PullRequestInfo } from '../info/pull-request-info';
 import { PullRequestsHelper } from '../helpers/pull-requests-helper';
 import { PushListener } from '../api/push-listener';
@@ -87,9 +87,8 @@ export class ApplyMilestoneOnPullRequestsLogic implements Logic, ScheduleListene
           console.log(`Ignore pull request ${pullRequest.htmlLink} as podman desktop version is not semver ${currentMilestone}`);
           return;
         }
-        
-        if (tagDefinition) {
 
+        if (tagDefinition) {
           // grab date of milestone tag
           const tagDate = moment(tagDefinition.committedDate);
           const mergedDate = moment(pullRequest.mergedAt);

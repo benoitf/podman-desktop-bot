@@ -7,6 +7,8 @@ import { InversifyBinding } from './inversify-binding';
 export class Main {
   public static readonly WRITE_TOKEN: string = 'write_token';
   public static readonly READ_TOKEN: string = 'read_token';
+  public static readonly SLACK_URL: string = 'slack_url';
+  public static readonly LAST_STARGAZERS_CHECK: string = 'last_stargazers_check';
 
   protected async doStart(): Promise<void> {
     // github write token
@@ -21,7 +23,19 @@ export class Main {
       throw new Error('No Read Token provided');
     }
 
-    const inversifyBinbding = new InversifyBinding(writeToken, readToken);
+    // slack URL
+    const slackUrl = core.getInput(Main.SLACK_URL);
+    if (!slackUrl) {
+      throw new Error('No Slack Url provided');
+    }
+
+    // slack URL
+    const lastStargazersCheck = core.getInput(Main.LAST_STARGAZERS_CHECK);
+    if (!lastStargazersCheck) {
+      throw new Error('No lastStargazersCheck provided');
+    }
+
+    const inversifyBinbding = new InversifyBinding(writeToken, readToken, slackUrl, lastStargazersCheck);
     const container = inversifyBinbding.initBindings();
     const analysis = container.get(Analysis);
     await analysis.analyze(github.context);

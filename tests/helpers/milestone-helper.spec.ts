@@ -2,7 +2,7 @@
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
+
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -10,6 +10,7 @@ import { MilestoneDefinition, MilestoneHelper } from '../../src/helpers/mileston
 
 import { Container } from 'inversify';
 import { Octokit } from '@octokit/rest';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import { graphql } from '@octokit/graphql';
 
 describe('Test Helper MilestoneHelper', () => {
@@ -18,10 +19,10 @@ describe('Test Helper MilestoneHelper', () => {
   let octokit: {
     rest: {
       issues: {
-        createMilestone: jest.Mock<any, any>,
-        updateMilestone: jest.Mock<any, any>,
-      }
-    }
+        createMilestone: jest.Mock<any, any>;
+        updateMilestone: jest.Mock<any, any>;
+      };
+    };
   };
 
   beforeEach(() => {
@@ -30,7 +31,7 @@ describe('Test Helper MilestoneHelper', () => {
     octokit = {
       rest: {
         issues: { createMilestone: jest.fn(), updateMilestone: jest.fn() },
-      }
+      },
     };
 
     container.bind('Octokit').toConstantValue(octokit);
@@ -59,7 +60,8 @@ describe('Test Helper MilestoneHelper', () => {
     await addMilestoneHelper.createMilestone(repoOwner, repoName, milestoneDetails);
 
     expect(octokit.rest.issues.createMilestone).toBeCalled();
-    const createMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.createMilestone.mock.calls[0][0];
+    const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.createMilestone.mock.calls[0][0];
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.due_on).toBe(milestoneDueOn);
     expect(createMilestoneParams.description).toBe(milestoneDescription);
@@ -90,7 +92,8 @@ describe('Test Helper MilestoneHelper', () => {
     await addMilestoneHelper.createMilestone(repoOwner, repoName, milestoneDetails);
 
     expect(octokit.rest.issues.createMilestone).toBeCalled();
-    const createMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.createMilestone.mock.calls[0][0];
+    const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.createMilestone.mock.calls[0][0];
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.due_on).toBeUndefined();
     expect(createMilestoneParams.description).toBeUndefined();
@@ -121,7 +124,8 @@ describe('Test Helper MilestoneHelper', () => {
     await addMilestoneHelper.updateMilestone(repoOwner, repoName, milestoneDetails);
 
     expect(octokit.rest.issues.updateMilestone).toBeCalled();
-    const createMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.updateMilestone.mock.calls[0][0];
+    const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.updateMilestone.mock.calls[0][0];
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.milestone_number).toBe(milestoneNumber);
     expect(createMilestoneParams.due_on).toBe(milestoneDueOn);
@@ -153,7 +157,8 @@ describe('Test Helper MilestoneHelper', () => {
     await addMilestoneHelper.updateMilestone(repoOwner, repoName, milestoneDetails);
 
     expect(octokit.rest.issues.updateMilestone).toBeCalled();
-    const createMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"] = octokit.rest.issues.updateMilestone.mock.calls[0][0];
+    const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
+      octokit.rest.issues.updateMilestone.mock.calls[0][0];
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.milestone_number).toBe(milestoneNumber);
     expect(createMilestoneParams.due_on).toBeUndefined();

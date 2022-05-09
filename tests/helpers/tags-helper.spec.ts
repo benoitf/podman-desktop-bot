@@ -18,10 +18,10 @@ describe('Test Helper TagsHelper', () => {
   let octokit: {
     rest: {
       issues: {
-        createMilestone: jest.Mock<any, any>,
-        updateMilestone: jest.Mock<any, any>,
-      }
-    }
+        createMilestone: jest.Mock<any, any>;
+        updateMilestone: jest.Mock<any, any>;
+      };
+    };
   };
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe('Test Helper TagsHelper', () => {
     octokit = {
       rest: {
         issues: { createMilestone: jest.fn(), updateMilestone: jest.fn() },
-      }
+      },
     };
 
     container.bind('Octokit').toConstantValue(octokit);

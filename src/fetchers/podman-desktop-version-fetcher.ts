@@ -8,7 +8,6 @@ export class PodmanDesktopVersionFetcher {
   private version: Promise<string | undefined>;
 
   async init(): Promise<string | undefined> {
-
     const response = await axios.get(PodmanDesktopVersionFetcher.PODMAN_PACKAGE_JSON);
     const data = response.data;
     return data.version;

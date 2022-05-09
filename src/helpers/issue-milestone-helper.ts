@@ -1,10 +1,10 @@
-import { GitHub } from '@actions/github/lib/utils';
 import { inject, injectable, named } from 'inversify';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
-import { IssueInfo } from '../info/issue-info';
-type Octokit = InstanceType<typeof GitHub>;
 
+import { GitHub } from '@actions/github/lib/utils';
+import { IssueInfo } from '../info/issue-info';
 import { PullRequestInfo } from '../info/pull-request-info';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+type Octokit = InstanceType<typeof GitHub>;
 
 @injectable()
 export class IssueMilestoneHelper {
@@ -20,7 +20,7 @@ export class IssueMilestoneHelper {
     // search if milestone is already defined
 
     // search milestone on the repo
-    const issuesGetMilestonesParams: RestEndpointMethodTypes["issues"]["listMilestones"]["parameters"] = {
+    const issuesGetMilestonesParams: RestEndpointMethodTypes['issues']['listMilestones']['parameters'] = {
       per_page: 100,
       state: 'all',
       direction: 'desc',
@@ -29,9 +29,7 @@ export class IssueMilestoneHelper {
     };
 
     const response = await this.octokitRead.rest.issues.listMilestones(issuesGetMilestonesParams);
-    let githubMilestone = response.data.find(
-      (milestoneResponse) => milestoneResponse.title === milestone
-    );
+    let githubMilestone = response.data.find(milestoneResponse => milestoneResponse.title === milestone);
 
     // not defined, create it
     if (!githubMilestone) {
@@ -42,7 +40,6 @@ export class IssueMilestoneHelper {
       };
       const createMilestoneResponse = await this.octokitWrite.rest.issues.createMilestone(issuesCreateMilestoneParams);
       githubMilestone = createMilestoneResponse.data;
-      
     }
 
     // Grab the number

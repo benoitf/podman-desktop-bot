@@ -14,18 +14,22 @@ import { Container } from 'inversify';
 import { IssueMilestoneHelper } from '../../src/helpers/issue-milestone-helper';
 import { MilestoneHelper } from '../../src/helpers/milestone-helper';
 import { Octokit } from '@octokit/rest';
+import { PodmanDesktopVersionFetcher } from '../../src/fetchers/podman-desktop-version-fetcher';
 import { PullRequestsHelper } from '../../src/helpers/pull-requests-helper';
 import axios from 'axios';
 import { graphql } from '@octokit/graphql';
-import { PodmanDesktopVersionFetcher } from '../../src/fetchers/podman-desktop-version-fetcher';
 
 describe('Test Apply Milestone Logic', () => {
   let container: Container;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let octokit: { rest: { issues: { 
-      createMilestone: jest.Mock<any, any>;
-      updateMilestone: jest.Mock<any, any>;
- } } };
+  let octokit: {
+    rest: {
+      issues: {
+        createMilestone: jest.Mock<any, any>;
+        updateMilestone: jest.Mock<any, any>;
+      };
+    };
+  };
 
   let issueMilestoneHelper: any;
   let pullRequestsHelper: any;
@@ -57,7 +61,7 @@ describe('Test Apply Milestone Logic', () => {
     octokit = {
       rest: {
         issues: { createMilestone: jest.fn(), updateMilestone: jest.fn() },
-      }
+      },
     };
 
     container.bind('Octokit').toConstantValue(octokit);

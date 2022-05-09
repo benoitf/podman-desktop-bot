@@ -4,13 +4,13 @@ import 'reflect-metadata';
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
 
 import { IssueInfo, IssueInfoBuilder } from '../../src/info/issue-info';
 
 import { Container } from 'inversify';
 import { IssuesHelper } from '../../src/helpers/issue-helper';
 import { Octokit } from '@octokit/rest';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 describe('Test Helper IssueHelper', () => {
   let container: Container;
@@ -25,7 +25,7 @@ describe('Test Helper IssueHelper', () => {
   });
 
   test('test isFirstTime true', async () => {
-    const octokit = { rest: {issues: { listForRepo: jest.fn() } }};
+    const octokit = { rest: { issues: { listForRepo: jest.fn() } } };
 
     container.bind('Octokit').toConstantValue(octokit);
     const issueHelper = container.get(IssuesHelper);
@@ -46,7 +46,7 @@ describe('Test Helper IssueHelper', () => {
     const isFirstTime: boolean = await issueHelper.isFirstTime(issueInfo);
 
     expect(octokit.rest.issues.listForRepo).toBeCalled();
-    const params: RestEndpointMethodTypes["issues"]["listForRepo"]["parameters"] = octokit.rest.issues.listForRepo.mock.calls[0][0];
+    const params: RestEndpointMethodTypes['issues']['listForRepo']['parameters'] = octokit.rest.issues.listForRepo.mock.calls[0][0];
 
     expect(params.creator).toBe(issueInfo.author);
     expect(params.state).toBe('all');
@@ -57,7 +57,7 @@ describe('Test Helper IssueHelper', () => {
   });
 
   test('test isFirstTime false', async () => {
-    const octokit = { rest: {issues: { listForRepo: jest.fn() } }};
+    const octokit = { rest: { issues: { listForRepo: jest.fn() } } };
 
     container.bind('Octokit').toConstantValue(octokit);
     const issueHelper = container.get(IssuesHelper);
@@ -78,7 +78,7 @@ describe('Test Helper IssueHelper', () => {
     const isFirstTime: boolean = await issueHelper.isFirstTime(issueInfo);
 
     expect(octokit.rest.issues.listForRepo).toBeCalled();
-    const params:  RestEndpointMethodTypes["issues"]["listForRepo"]["parameters"] = octokit.rest.issues.listForRepo.mock.calls[0][0];
+    const params: RestEndpointMethodTypes['issues']['listForRepo']['parameters'] = octokit.rest.issues.listForRepo.mock.calls[0][0];
 
     expect(params.creator).toBe(issueInfo.author);
     expect(params.state).toBe('all');
@@ -103,7 +103,7 @@ describe('Test Helper IssueHelper', () => {
 
     container.rebind(IssueInfoBuilder).toConstantValue(issueInfoBuilder);
 
-    const octokit = { rest: {issues: { get: jest.fn() } }};
+    const octokit = { rest: { issues: { get: jest.fn() } } };
 
     container.bind('Octokit').toConstantValue(octokit);
     const issueHelper = container.get(IssuesHelper);
@@ -119,7 +119,7 @@ describe('Test Helper IssueHelper', () => {
     expect(issueInfo).toBeDefined();
 
     expect(octokit.rest.issues.get).toBeCalled();
-    const params: RestEndpointMethodTypes["issues"]["get"]["parameters"] = octokit.rest.issues.get.mock.calls[0][0];
+    const params: RestEndpointMethodTypes['issues']['get']['parameters'] = octokit.rest.issues.get.mock.calls[0][0];
 
     expect(params.owner).toBe('benoitf');
     expect(params.repo).toBe('demo-gh-event');

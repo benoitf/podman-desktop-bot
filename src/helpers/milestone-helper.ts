@@ -1,8 +1,9 @@
 import { inject, injectable, named } from 'inversify';
 
-import { graphql } from '@octokit/graphql';
 import { GitHub } from '@actions/github/lib/utils';
-import {RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+import { graphql } from '@octokit/graphql';
+
 export interface MilestoneDefinition {
   //
   // {
@@ -31,7 +32,7 @@ export class MilestoneHelper {
 
   public async createMilestone(repoOwner: string, repoName: string, milestoneDefinition: MilestoneDefinition): Promise<void> {
     // create milestone on the repo
-    const issuesCreateMilestoneParams: RestEndpointMethodTypes["issues"]["createMilestone"]["parameters"]  = {
+    const issuesCreateMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] = {
       owner: repoOwner,
       repo: repoName,
       title: milestoneDefinition.title,
@@ -124,7 +125,12 @@ export class MilestoneHelper {
     return milestones;
   }
 
-  protected async doSearchMilestones(queryRepositories: string, cursorRepository?: string, cursorMilestones?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
+  protected async doSearchMilestones(
+    queryRepositories: string,
+    cursorRepository?: string,
+    cursorMilestones?: string,
+    previousMilestones?: unknown[]
+  ): Promise<unknown[]> {
     const query = `
     query getMilestones($queryRepositories: String!, $cursorRepositoryAfter: String, $cursorMilestoneAfter: String){
       rateLimit{
@@ -193,14 +199,20 @@ export class MilestoneHelper {
 
     // need to loop again on milestones before looping on repositories
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const milestonesWithNextCursors: Array<any> = graphQlResponse.search.edges.map((edge: any) => {
-      if (edge.node.milestones.pageInfo?.hasNextPage) {
-        return edge.node.milestones.pageInfo.endCursor;
-      } else {
-        return undefined;
-      }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }).filter((value: any) => {if (value) {return value;}});
+    const milestonesWithNextCursors: Array<any> = graphQlResponse.search.edges
+      .map((edge: any) => {
+        if (edge.node.milestones.pageInfo?.hasNextPage) {
+          return edge.node.milestones.pageInfo.endCursor;
+        } else {
+          return undefined;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      })
+      .filter((value: any) => {
+        if (value) {
+          return value;
+        }
+      });
     let nextCursorMilestone;
     if (milestonesWithNextCursors.length > 0) {
       nextCursorMilestone = milestonesWithNextCursors[0];
@@ -211,7 +223,12 @@ export class MilestoneHelper {
       return await this.doSearchMilestones(queryRepositories, cursorRepository, nextCursorMilestone, allGraphQlResponse);
     } else if (graphQlResponse.search.pageInfo.hasNextPage) {
       // needs to redo the search starting from the last search
-      return await this.doSearchMilestones(queryRepositories, graphQlResponse.search.pageInfo.endCursor, cursorMilestones, allGraphQlResponse);
+      return await this.doSearchMilestones(
+        queryRepositories,
+        graphQlResponse.search.pageInfo.endCursor,
+        cursorMilestones,
+        allGraphQlResponse
+      );
     }
 
     // from reverse order

@@ -15,7 +15,6 @@ export class PullRequestsHelper {
   private pullRequestInfoBuilder: PullRequestInfoBuilder;
 
   public async getRecentMerged(duration: moment.Duration): Promise<PullRequestInfo[]> {
-
     const afterDate = moment(new Date()).utc().subtract(duration).toISOString();
 
     const queryString = `repo:containers/podman-desktop is:pr merged:>=${afterDate} is:merged no:milestone`;

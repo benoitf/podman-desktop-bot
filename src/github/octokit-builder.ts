@@ -1,8 +1,8 @@
-import {getOctokit} from '@actions/github';
 import { GitHub } from '@actions/github/lib/utils';
+import { getOctokit } from '@actions/github';
+import { injectable } from 'inversify';
 
 type Octokit = InstanceType<typeof GitHub>;
-import { injectable } from 'inversify';
 
 @injectable()
 export class OctokitBuilder {
