@@ -35,6 +35,7 @@ export class InversifyBinding {
     const readOctokit = this.container.get(OctokitBuilder).build(this.readToken);
     this.container.bind('Octokit').toConstantValue(readOctokit).whenTargetNamed('READ_TOKEN');
     this.container.bind('string').toConstantValue(`token ${this.readToken}`).whenTargetNamed('GRAPHQL_READ_TOKEN');
+    this.container.bind('string').toConstantValue(`token ${this.writeToken}`).whenTargetNamed('GRAPHQL_WRITE_TOKEN');
     this.container.bind('string').toConstantValue(this.lastStargazersCheck).whenTargetNamed('LAST_STARGAZERS_CHECK');
 
     this.container.bind('slack-url').toConstantValue(this.slackUrl);
@@ -42,6 +43,8 @@ export class InversifyBinding {
     this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_SET_MILESTONE_PER_RUN');
     this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_CREATE_MILESTONE_PER_RUN');
     this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_UPDATE_MILESTONE_PER_RUN');
+
+    this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_SET_ISSUES_PER_RUN');
 
     // Analyze
     this.container.bind(Analysis).toSelf().inSingletonScope();

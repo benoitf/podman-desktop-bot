@@ -1,6 +1,8 @@
 import { ContainerModule, interfaces } from 'inversify';
 
 import { ApplyMilestoneOnPullRequestsLogic } from './apply-milestone-on-pull-requests-logic';
+import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';
+import { ApplyTriageOnIssuesLogic } from './apply-triage-on-issues-logic';
 import { Logic } from '../api/logic';
 import { NotifyLatestStargazersLogic } from './notify-latest-stargazers-logic';
 import { PushListener } from '../api/push-listener';
@@ -9,6 +11,16 @@ import { bindMultiInjectProvider } from '../api/multi-inject-provider';
 
 const logicModule = new ContainerModule((bind: interfaces.Bind) => {
   bindMultiInjectProvider(bind, Logic);
+
+  bind(ApplyProjectsOnIssuesLogic).to(ApplyProjectsOnIssuesLogic).inSingletonScope();
+  bind(ScheduleListener).toService(ApplyProjectsOnIssuesLogic);
+  bind(PushListener).toService(ApplyProjectsOnIssuesLogic);
+  bind(Logic).toService(ApplyProjectsOnIssuesLogic);
+
+  bind(ApplyTriageOnIssuesLogic).to(ApplyTriageOnIssuesLogic).inSingletonScope();
+  bind(ScheduleListener).toService(ApplyTriageOnIssuesLogic);
+  bind(PushListener).toService(ApplyTriageOnIssuesLogic);
+  bind(Logic).toService(ApplyTriageOnIssuesLogic);
 
   bind(ApplyMilestoneOnPullRequestsLogic).to(ApplyMilestoneOnPullRequestsLogic).inSingletonScope();
   bind(ScheduleListener).toService(ApplyMilestoneOnPullRequestsLogic);

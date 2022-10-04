@@ -2,10 +2,10 @@ import { inject, injectable, named } from 'inversify';
 
 import { Logic } from '../api/logic';
 import { PullRequestInfo } from '../info/pull-request-info';
+import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 import { SlackHelper } from '../helpers/slack-helper';
 import { StargazerHelper } from '../helpers/stargazer-helper';
-import { PushListener } from '../api/push-listener';
 
 @injectable()
 export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, PushListener {

@@ -4,6 +4,7 @@ import { AddLabelHelper } from './add-label-helper';
 import { IssueMilestoneHelper } from './issue-milestone-helper';
 import { IssuesHelper } from './issue-helper';
 import { MilestoneHelper } from './milestone-helper';
+import { ProjectsHelper } from './projects-helper';
 import { PullRequestsHelper } from './pull-requests-helper';
 import { SlackHelper } from './slack-helper';
 import { StargazerHelper } from './stargazer-helper';
@@ -18,6 +19,7 @@ const helpersModule = new ContainerModule((bind: interfaces.Bind) => {
   bind(TagsHelper).toSelf().inSingletonScope();
   bind(StargazerHelper).toSelf().inSingletonScope();
   bind(SlackHelper).toSelf().inSingletonScope();
+  bind(ProjectsHelper).toSelf().inSingletonScope();
 });
 
 export { helpersModule };

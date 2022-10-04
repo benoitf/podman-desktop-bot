@@ -4,6 +4,7 @@ import { GitHub } from '@actions/github/lib/utils';
 import { IssueInfo } from '../info/issue-info';
 import { PullRequestInfo } from '../info/pull-request-info';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+
 type Octokit = InstanceType<typeof GitHub>;
 
 @injectable()

@@ -1,6 +1,10 @@
 import { inject, injectable, named } from 'inversify';
 
-import { Octokit } from '@octokit/rest';
+import { GitHub } from '@actions/github/lib/utils';
+import { IssueInfo } from '../info/issue-info';
+import { RestEndpointMethodTypes } from '@octokit/rest';
+
+type Octokit = InstanceType<typeof GitHub>;
 
 @injectable()
 export class AddLabelHelper {
@@ -8,23 +12,23 @@ export class AddLabelHelper {
   @named('WRITE_TOKEN')
   private octokit: Octokit;
 
-  // public async addLabel(labelsToAdd: string[], issueInfo: IssueInfo): Promise<void> {
-  //   // filters labels already included
-  //   const remainingLabelsToAdd = labelsToAdd.filter(label => !issueInfo.hasLabel(label));
+  public async addLabel(labelsToAdd: string[], issueInfo: IssueInfo): Promise<void> {
+    // filters labels already included
+    const remainingLabelsToAdd = labelsToAdd.filter(label => !issueInfo.hasLabel(label));
 
-  //   // if issue has already the label, do not trigger the add
-  //   if (remainingLabelsToAdd.length === 0) {
-  //     return;
-  //   }
+    // if issue has already the label, do not trigger the add
+    if (remainingLabelsToAdd.length === 0) {
+      return;
+    }
 
-  //   const params: Octokit.IssuesAddLabelsParams = {
-  //     // eslint-disable-next-line @typescript-eslint/camelcase
-  //     issue_number: issueInfo.number,
-  //     labels: remainingLabelsToAdd,
-  //     owner: issueInfo.owner,
-  //     repo: issueInfo.repo,
-  //   };
+    const params: RestEndpointMethodTypes['issues']['addLabels']['parameters'] = {
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      issue_number: issueInfo.number,
+      labels: remainingLabelsToAdd,
+      owner: issueInfo.owner,
+      repo: issueInfo.repo,
+    };
 
-  //   await this.octokit.issues.addLabels(params);
-  // }
+    await this.octokit.rest.issues.addLabels(params);
+  }
 }
