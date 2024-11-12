@@ -37,7 +37,7 @@ export class IssuesHelper {
   public async getRecentIssues(duration: moment.Duration): Promise<IssueInfo[]> {
     const afterDate = moment(new Date()).utc().subtract(duration).toISOString();
 
-    const queryString = `repo:containers/podman-desktop is:issue created:>=${afterDate}`;
+    const queryString = `repo:podman-desktop/podman-desktop is:issue created:>=${afterDate}`;
     const lastNewIssuesSearch = await this.doGetRecentIssues(queryString);
 
     // received array of edges looking like:
@@ -45,7 +45,7 @@ export class IssuesHelper {
     // [
     //   {
     //     "node": {
-    //       "url": "https://github.com/containers/podman-desktop/issues/514",
+    //       "url": "https://github.com/podman-desktop/podman-desktop/issues/514",
     //       "number": 514,
     //       "repository": {
     //         "name": "podman-desktop",

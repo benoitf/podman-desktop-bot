@@ -17,7 +17,7 @@ export class PullRequestsHelper {
   public async getRecentMerged(duration: moment.Duration): Promise<PullRequestInfo[]> {
     const afterDate = moment(new Date()).utc().subtract(duration).toISOString();
 
-    const queryString = `repo:containers/podman-desktop is:pr merged:>=${afterDate} is:merged no:milestone`;
+    const queryString = `repo:podman-desktop/podman-desktop is:pr merged:>=${afterDate} is:merged no:milestone`;
     console.log('Query String =', queryString);
     const lastMergedPullRequestSearch = await this.doGetRecentMerged(queryString);
 

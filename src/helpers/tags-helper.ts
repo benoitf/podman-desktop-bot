@@ -14,7 +14,7 @@ export class TagsHelper {
   private graphqlReadToken: string;
 
   public async getLatestTags(): Promise<Map<string, TagDefinition[]>> {
-    const latestTagSearch = await this.doGetLatestTags('repo:containers/podman-desktop');
+    const latestTagSearch = await this.doGetLatestTags('repo:podman-desktop/podman-desktop');
 
     // received array of edges looking like:
     // [
