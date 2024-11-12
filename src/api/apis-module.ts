@@ -1,9 +1,9 @@
 import type { interfaces } from 'inversify';
 import { ContainerModule } from 'inversify';
 
-import { PushListener } from './push-listener';
-import { ScheduleListener } from './schedule-listener';
-import { bindMultiInjectProvider } from '../api/multi-inject-provider';
+import { PushListener } from './push-listener.js';
+import { ScheduleListener } from './schedule-listener.js';
+import { bindMultiInjectProvider } from '../api/multi-inject-provider.js';
 
 const apisModule = new ContainerModule((bind: interfaces.Bind) => {
   bindMultiInjectProvider(bind, ScheduleListener);

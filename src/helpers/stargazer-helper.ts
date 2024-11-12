@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import { StargazerInfo, StargazerInfoBuilder } from '../info/stargazer-info';
+import { StargazerInfo, StargazerInfoBuilder } from '../info/stargazer-info.js';
 import { inject, injectable, named } from 'inversify';
 
 import { graphql } from '@octokit/graphql';

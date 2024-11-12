@@ -2,12 +2,12 @@ import * as moment from 'moment';
 
 import { inject, injectable, named } from 'inversify';
 
-import { AddLabelHelper } from '../helpers/add-label-helper';
-import { IssuesHelper } from '../helpers/issue-helper';
-import { Logic } from '../api/logic';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
+import { AddLabelHelper } from '../helpers/add-label-helper.js';
+import { IssuesHelper } from '../helpers/issue-helper.js';
+import { Logic } from '../api/logic.js';
+import { PullRequestInfo } from '../info/pull-request-info.js';
+import { PushListener } from '../api/push-listener.js';
+import { ScheduleListener } from '../api/schedule-listener.js';
 
 export interface MilestoneDefinition {
   pullRequestInfo: PullRequestInfo;

@@ -1,15 +1,15 @@
 import type { interfaces } from 'inversify';
 import { ContainerModule } from 'inversify';
 
-import { AddLabelHelper } from './add-label-helper';
-import { IssueMilestoneHelper } from './issue-milestone-helper';
-import { IssuesHelper } from './issue-helper';
-import { MilestoneHelper } from './milestone-helper';
-import { ProjectsHelper } from './projects-helper';
-import { PullRequestsHelper } from './pull-requests-helper';
-import { SlackHelper } from './slack-helper';
-import { StargazerHelper } from './stargazer-helper';
-import { TagsHelper } from './tags-helper';
+import { AddLabelHelper } from './add-label-helper.js';
+import { IssueMilestoneHelper } from './issue-milestone-helper.js';
+import { IssuesHelper } from './issue-helper.js';
+import { MilestoneHelper } from './milestone-helper.js';
+import { ProjectsHelper } from './projects-helper.js';
+import { PullRequestsHelper } from './pull-requests-helper.js';
+import { SlackHelper } from './slack-helper.js';
+import { StargazerHelper } from './stargazer-helper.js';
+import { TagsHelper } from './tags-helper.js';
 
 const helpersModule = new ContainerModule((bind: interfaces.Bind) => {
   bind(AddLabelHelper).toSelf().inSingletonScope();

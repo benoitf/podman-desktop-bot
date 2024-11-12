@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-import { Analysis } from './analysis';
-import { InversifyBinding } from './inversify-binding';
+import { Analysis } from './analysis.js';
+import { InversifyBinding } from './inversify-binding.js';
 
 export class Main {
   public static readonly WRITE_TOKEN: string = 'write_token';

@@ -1,6 +1,6 @@
 import { inject, injectable, named } from 'inversify';
 
-import { IssueInfo } from '../info/issue-info';
+import { IssueInfo } from '../info/issue-info.js';
 import { graphql } from '@octokit/graphql';
 
 @injectable()

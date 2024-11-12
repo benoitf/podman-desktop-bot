@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import { PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
+import { PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info.js';
 import { inject, injectable, named } from 'inversify';
 
 import { graphql } from '@octokit/graphql';

@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 
-import { IssueInfo } from './issue-info';
-import { IssuesHelper } from '../helpers/issue-helper';
-import { PullRequestInfoLinkedIssuesExtractor } from './pull-request-info-linked-issues-extractor';
+import { IssueInfo } from './issue-info.js';
+import { IssuesHelper } from '../helpers/issue-helper.js';
+import { PullRequestInfoLinkedIssuesExtractor } from './pull-request-info-linked-issues-extractor.js';
 
 export class PullRequestInfo extends IssueInfo {
   private __merged: boolean;

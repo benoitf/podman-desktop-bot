@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import { IssueInfo, IssueInfoBuilder } from '../info/issue-info';
+import { IssueInfo, IssueInfoBuilder } from '../info/issue-info.js';
 import { inject, injectable, named } from 'inversify';
 
 import { GitHub } from '@actions/github/lib/utils';

@@ -49,6 +49,8 @@ export default [
       '**/test-resources',
       '**/__mocks__/',
       '**/coverage/',
+      '**/dist/',
+      '**/out/',
       'packages/backend/media/**',
       'scripts/**',
       '**/src-generated/',

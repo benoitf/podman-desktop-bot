@@ -1,9 +1,9 @@
 import { inject, injectable, named } from 'inversify';
 
 import { Context } from '@actions/github/lib/context';
-import { Handler } from '../api/handler';
-import { MultiInjectProvider } from '../api/multi-inject-provider';
-import { PushListener } from '../api/push-listener';
+import { Handler } from '../api/handler.js';
+import { MultiInjectProvider } from '../api/multi-inject-provider.js';
+import { PushListener } from '../api/push-listener.js';
 
 @injectable()
 export class PushHandler implements Handler {

@@ -1,7 +1,7 @@
 import { inject, injectable, named } from 'inversify';
 
 import { GitHub } from '@actions/github/lib/utils';
-import { IssueInfo } from '../info/issue-info';
+import { IssueInfo } from '../info/issue-info.js';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 
 type Octokit = InstanceType<typeof GitHub>;

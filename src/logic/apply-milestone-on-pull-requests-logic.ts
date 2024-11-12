@@ -1,16 +1,16 @@
 import * as moment from 'moment';
 import * as semver from 'semver';
 
-import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
+import { TagDefinition, TagsHelper } from '../helpers/tags-helper.js';
 import { inject, injectable, named } from 'inversify';
 
-import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
-import { Logic } from '../api/logic';
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestsHelper } from '../helpers/pull-requests-helper';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
+import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper.js';
+import { Logic } from '../api/logic.js';
+import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher.js';
+import { PullRequestInfo } from '../info/pull-request-info.js';
+import { PullRequestsHelper } from '../helpers/pull-requests-helper.js';
+import { PushListener } from '../api/push-listener.js';
+import { ScheduleListener } from '../api/schedule-listener.js';
 
 export interface MilestoneDefinition {
   pullRequestInfo: PullRequestInfo;

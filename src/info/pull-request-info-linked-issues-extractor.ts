@@ -1,4 +1,4 @@
-import { PullRequestInfo } from './pull-request-info';
+import { PullRequestInfo } from './pull-request-info.js';
 import { injectable } from 'inversify';
 
 @injectable()

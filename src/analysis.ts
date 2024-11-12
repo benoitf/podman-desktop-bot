@@ -1,8 +1,8 @@
 import { inject, injectable, named } from 'inversify';
 
 import { Context } from '@actions/github/lib/context';
-import { Handler } from './api/handler';
-import { MultiInjectProvider } from './api/multi-inject-provider';
+import { Handler } from './api/handler.js';
+import { MultiInjectProvider } from './api/multi-inject-provider.js';
 
 @injectable()
 export class Analysis {

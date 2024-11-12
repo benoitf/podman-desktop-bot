@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 
-import { Analysis } from './analysis';
+import { Analysis } from './analysis.js';
 import { Container } from 'inversify';
-import { Logic } from './api/logic';
-import { OctokitBuilder } from './github/octokit-builder';
-import { apisModule } from './api/apis-module';
-import { fetchersModule } from './fetchers/fetchers-module';
-import { handlersModule } from './handler/handlers-module';
-import { helpersModule } from './helpers/helpers-module';
-import { infosModule } from './info/infos-module';
-import { logicModule } from './logic/logic-module';
+import { Logic } from './api/logic.js';
+import { OctokitBuilder } from './github/octokit-builder.js';
+import { apisModule } from './api/apis-module.js';
+import { fetchersModule } from './fetchers/fetchers-module.js';
+import { handlersModule } from './handler/handlers-module.js';
+import { helpersModule } from './helpers/helpers-module.js';
+import { infosModule } from './info/infos-module.js';
+import { logicModule } from './logic/logic-module.js';
 
 export class InversifyBinding {
   private container: Container;

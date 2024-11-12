@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
-    "outDir": "./dist",
+    "moduleResolution": "Node",
+    "outDir": "./out",
     "sourceMap": true,
     "noEmitOnError": true,
     "noImplicitReturns" : true,
@@ -15,18 +15,18 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "types": ["reflect-metadata", "jest"],
+    "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   }
 ,
   "include": [
-    "src/**/*",
-    "tests/**/*"
+    "src/**/*"
   ]
 ,
   "exclude": [
     "node_modules",
-    "server"
+    "server",
+    "out"
   ]
 }
