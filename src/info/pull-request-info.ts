@@ -60,7 +60,7 @@ export class PullRequestInfoBuilder {
     const extractedLinkedIssues = this.pullRequestInfoLinkedIssuesExtractor.extract(pullRequestInfo);
     const linkedIssues: IssueInfo[] = [];
     // grab labels on the linked issues
-    for await (const extractedLinkedIssue of extractedLinkedIssues) {
+    for (const extractedLinkedIssue of extractedLinkedIssues) {
       const linkedIssueInfo = await this.issuesHelper.getIssue(extractedLinkedIssue);
       if (linkedIssueInfo) {
         linkedIssues.push(linkedIssueInfo);

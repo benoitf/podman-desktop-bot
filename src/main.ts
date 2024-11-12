@@ -45,9 +45,9 @@ export class Main {
     try {
       await this.doStart();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error);
-      core.setFailed(error.message);
+      core.setFailed(String(error));
       return false;
     }
   }

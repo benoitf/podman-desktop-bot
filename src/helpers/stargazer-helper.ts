@@ -58,7 +58,7 @@ export class StargazerHelper {
         .withWebsiteUrl(item.node.websiteUrl)
         .withTwitterUsername(item.node.twitterUsername)
         .withUrl(item.node.url)
-        .withAvatarUrl(item.node.avatarUrl)
+        .withAvatarUrl(item.node.avatarUrl),
     );
     return starGazers;
   }
@@ -122,6 +122,7 @@ export class StargazerHelper {
     }
 
     // filter out all results that are old
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     allGraphQlResponse = allGraphQlResponse.filter((item: any) => moment(item.starredAt).isAfter(lastTimeCheck));
 
     // need to loop again if there are more and that last check has been performed after the current date

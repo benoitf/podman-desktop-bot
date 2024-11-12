@@ -1,6 +1,5 @@
-import { inject, injectable, named } from 'inversify';
+import { inject, injectable } from 'inversify';
 
-import { GitHub } from '@actions/github/lib/utils';
 import axios from 'axios';
 
 @injectable()
@@ -8,7 +7,7 @@ export class SlackHelper {
   @inject('slack-url')
   private slackurl: string;
 
-  public async sendMessage(message: any): Promise<void> {
+  public async sendMessage(message: unknown): Promise<void> {
     const response = await axios.post(this.slackurl, message);
     const data = response.data;
     console.log('response is', data);

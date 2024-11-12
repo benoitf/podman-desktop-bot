@@ -1,7 +1,8 @@
-import { Context } from '@actions/github/lib/context';
-import { WebhookPayload } from '@actions/github/lib/interfaces';
+import type { Context } from '@actions/github/lib/context';
+import type { WebhookPayload } from '@actions/github/lib/interfaces';
 
 export const Handler = Symbol.for('Handler');
+// eslint-disable-next-line sonarjs/no-redeclare
 export interface Handler {
   supports(eventName: string): boolean;
 

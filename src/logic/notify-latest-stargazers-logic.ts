@@ -1,7 +1,6 @@
-import { inject, injectable, named } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 import { Logic } from '../api/logic';
-import { PullRequestInfo } from '../info/pull-request-info';
 import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 import { SlackHelper } from '../helpers/slack-helper';
@@ -79,7 +78,7 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, Pus
           ],
         };
         await this.slackHelper.sendMessage(message);
-      })
+      }),
     );
   }
 }

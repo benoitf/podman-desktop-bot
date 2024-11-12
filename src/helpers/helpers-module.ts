@@ -1,4 +1,5 @@
-import { ContainerModule, interfaces } from 'inversify';
+import type { interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { AddLabelHelper } from './add-label-helper';
 import { IssueMilestoneHelper } from './issue-milestone-helper';

@@ -4,6 +4,7 @@ export interface ScheduleListenerParam {
   owner: string;
 }
 
+// eslint-disable-next-line sonarjs/no-redeclare
 export interface ScheduleListener {
   execute(repo: ScheduleListenerParam): Promise<void>;
 }

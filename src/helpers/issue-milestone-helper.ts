@@ -48,11 +48,9 @@ export class IssueMilestoneHelper {
 
     // sets the milestone from the number
     const issuesUpdateParams = {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       owner: issueInfo.owner,
       repo: issueInfo.repo,
       milestone: milestoneNumber,
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issue_number: issueInfo.number,
     };
     await this.octokitWrite.rest.issues.update(issuesUpdateParams);

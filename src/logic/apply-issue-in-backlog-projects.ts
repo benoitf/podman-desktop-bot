@@ -1,17 +1,10 @@
 import * as moment from 'moment';
-import * as semver from 'semver';
-
-import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
 import { inject, injectable, named } from 'inversify';
 
-import { AddLabelHelper } from '../helpers/add-label-helper';
-import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
 import { IssuesHelper } from '../helpers/issue-helper';
 import { Logic } from '../api/logic';
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
 import { ProjectsHelper } from '../helpers/projects-helper';
 import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestsHelper } from '../helpers/pull-requests-helper';
 import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 
@@ -44,7 +37,7 @@ export class ApplyProjectsOnIssuesLogic implements Logic, ScheduleListener, Push
 
     // already in the planning project, skip it
     const filteredIssues = issues.filter(
-      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOAFmk9s4ACTx2')
+      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOAFmk9s4ACTx2'),
     );
 
     // now that we have issues
@@ -62,7 +55,7 @@ export class ApplyProjectsOnIssuesLogic implements Logic, ScheduleListener, Push
 
     // apply label
     // do update of milestones in all repositories
-    for await (const entry of filteredIssues) {
+    for (const entry of filteredIssues) {
       // do not flush too many calls at once on github
       await this.wait(500);
       await this.projectsHelper.setBacklogProjects(entry);

@@ -112,6 +112,7 @@ export class IssuesHelper {
       this.issueInfoBuilder
         .build()
         .withCreatedAt(item.node.createdAt)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .withLabels(item.node.labels?.nodes?.map((label: any) => label?.name))
         .withNumber(item.node.number)
         .withRepo(item.node.repository.name)
@@ -119,14 +120,15 @@ export class IssuesHelper {
         .withHtmlLink(item.node.url)
         .withId(item.node.id)
         .withProjectItems(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           item.node.projectItems?.nodes?.map((nodeItem: any) => {
             return {
               name: nodeItem?.fieldValueByName?.name,
               projectId: nodeItem?.project.id,
               projectNumber: nodeItem?.fieldValueByName?.field.project.number,
             };
-          })
-        )
+          }),
+        ),
     );
 
     return issues;
@@ -228,6 +230,7 @@ export class IssuesHelper {
   }
 
   public async getIssue(issueLink: string): Promise<IssueInfo | undefined> {
+    // eslint-disable-next-line sonarjs/slow-regex
     const parsingRegexp = /(?:\/repos\/)(.*)\/(.*)(?:\/issues\/)(\d+)/g;
 
     const parsing = parsingRegexp.exec(issueLink);
@@ -237,23 +240,22 @@ export class IssuesHelper {
       return undefined;
     }
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     const issueGetParam: RestEndpointMethodTypes['issues']['get']['parameters'] = {
       owner: parsing[1],
       repo: parsing[2],
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issue_number: parseInt(parsing[3]),
     };
 
     const response = await this.octokit.rest.issues.get(issueGetParam);
     const issueGetReponse = response.data;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const labels: string[] = issueGetReponse.labels.map((label: any) => label?.name);
 
     return this.issueInfoBuilder
       .build()
-      .withBody(issueGetReponse.body || '')
-      .withAuthor(issueGetReponse.user?.login || '')
+      .withBody(issueGetReponse.body ?? '')
+      .withAuthor(issueGetReponse.user?.login ?? '')
       .withHtmlLink(issueGetReponse.html_url)
       .withNumber(issueGetReponse.number)
       .withOwner(issueGetParam.owner)

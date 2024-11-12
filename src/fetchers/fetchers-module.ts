@@ -1,4 +1,5 @@
-import { ContainerModule, interfaces } from 'inversify';
+import type { interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { PodmanDesktopVersionFetcher } from './podman-desktop-version-fetcher';
 

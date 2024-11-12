@@ -25,8 +25,8 @@ export class ProjectsHelper {
     // id of projects planning
     const projectId = 'PVT_kwDOAFmk9s4ACTx2';
     const contentId = issueInfo.id;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const graphQlResponse: any = await graphql(query, {
       projectId: projectId,
       contentId: contentId,
@@ -59,7 +59,7 @@ mutation (
 }
 `;
 
-    const graphQlResponse2: any = await graphql(querySetProject, {
+    await graphql(querySetProject, {
       projectId: projectId,
       itemId: itemId,
       // this is for Status

@@ -1,4 +1,5 @@
-import { ContainerModule, interfaces } from 'inversify';
+import type { interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { ApplyMilestoneOnPullRequestsLogic } from './apply-milestone-on-pull-requests-logic';
 import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';

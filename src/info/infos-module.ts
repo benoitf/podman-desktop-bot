@@ -1,4 +1,5 @@
-import { ContainerModule, interfaces } from 'inversify';
+import type { interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { IssueInfoBuilder } from './issue-info';
 import { PullRequestInfoBuilder } from './pull-request-info';

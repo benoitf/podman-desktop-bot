@@ -136,7 +136,7 @@ export class ApplyMilestoneOnPullRequestsLogic implements Logic, ScheduleListene
 
     // apply milestones
     // do update of milestones in all repositories
-    for await (const entry of milestonesToSet) {
+    for (const entry of milestonesToSet) {
       // do not flush too many calls at once on github
       await this.wait(500);
       await this.issueMilestoneHelper.setMilestone(entry.milestone, entry.pullRequestInfo);

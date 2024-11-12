@@ -45,7 +45,6 @@ export class MilestoneHelper {
 
     // eslint-disable-next-line no-null/no-null
     if (milestoneDefinition.dueOn !== null) {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issuesCreateMilestoneParams.due_on = milestoneDefinition.dueOn;
     }
 
@@ -55,23 +54,19 @@ export class MilestoneHelper {
 
   public async updateMilestone(repoOwner: string, repoName: string, milestoneDefinition: MilestoneDefinition): Promise<void> {
     // create milestone on the repo
-    const issuesUpdateMilestoneParams: any = {
+    const issuesUpdateMilestoneParams: RestEndpointMethodTypes['issues']['updateMilestone']['parameters'] = {
       owner: repoOwner,
       repo: repoName,
-      // eslint-disable-next-line @typescript-eslint/camelcase
       milestone_number: milestoneDefinition.number,
       title: milestoneDefinition.title,
       state: milestoneDefinition.state,
     };
 
-    // eslint-disable-next-line no-null/no-null
-    if (milestoneDefinition.description !== null) {
+    if (milestoneDefinition.description) {
       issuesUpdateMilestoneParams.description = milestoneDefinition.description;
     }
 
-    // eslint-disable-next-line no-null/no-null
-    if (milestoneDefinition.dueOn !== null) {
-      // eslint-disable-next-line @typescript-eslint/camelcase
+    if (milestoneDefinition.dueOn) {
       issuesUpdateMilestoneParams.due_on = milestoneDefinition.dueOn;
     }
     console.log('Update milestone with params', issuesUpdateMilestoneParams);
@@ -105,7 +100,7 @@ export class MilestoneHelper {
     const milestones: Map<string, Map<string, MilestoneDefinition>> = new Map();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    milestoneSearch.map((item: any) => {
+    milestoneSearch.forEach((item: any) => {
       // get short repository name
       const repoName = `${item.node.owner.login}/${item.node.name}`;
 
@@ -118,7 +113,7 @@ export class MilestoneHelper {
         milestoneNode.state = milestoneNode.state.toLowerCase();
         milestoneMap.set(milestoneNode.title, milestoneNode as MilestoneDefinition);
       });
-      const existing = milestones.get(repoName) || new Map();
+      const existing = milestones.get(repoName) ?? new Map();
       milestones.set(repoName, new Map([...milestoneMap, ...existing]));
     });
 
@@ -129,7 +124,7 @@ export class MilestoneHelper {
     queryRepositories: string,
     cursorRepository?: string,
     cursorMilestones?: string,
-    previousMilestones?: unknown[]
+    previousMilestones?: unknown[],
   ): Promise<unknown[]> {
     const query = `
     query getMilestones($queryRepositories: String!, $cursorRepositoryAfter: String, $cursorMilestoneAfter: String){
@@ -200,14 +195,15 @@ export class MilestoneHelper {
     // need to loop again on milestones before looping on repositories
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const milestonesWithNextCursors: Array<any> = graphQlResponse.search.edges
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((edge: any) => {
         if (edge.node.milestones.pageInfo?.hasNextPage) {
           return edge.node.milestones.pageInfo.endCursor;
         } else {
           return undefined;
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .filter((value: any) => {
         if (value) {
           return value;
@@ -227,7 +223,7 @@ export class MilestoneHelper {
         queryRepositories,
         graphQlResponse.search.pageInfo.endCursor,
         cursorMilestones,
-        allGraphQlResponse
+        allGraphQlResponse,
       );
     }
 

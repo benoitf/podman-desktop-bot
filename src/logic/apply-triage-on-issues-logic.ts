@@ -1,16 +1,11 @@
 import * as moment from 'moment';
-import * as semver from 'semver';
 
-import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
 import { inject, injectable, named } from 'inversify';
 
 import { AddLabelHelper } from '../helpers/add-label-helper';
-import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
 import { IssuesHelper } from '../helpers/issue-helper';
 import { Logic } from '../api/logic';
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
 import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestsHelper } from '../helpers/pull-requests-helper';
 import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 
@@ -61,7 +56,7 @@ export class ApplyTriageOnIssuesLogic implements Logic, ScheduleListener, PushLi
 
     // apply label
     // do update of milestones in all repositories
-    for await (const entry of filteredIssues) {
+    for (const entry of filteredIssues) {
       // do not flush too many calls at once on github
       await this.wait(500);
       await this.addLabelHelper.addLabel(['status/need-triage'], entry);

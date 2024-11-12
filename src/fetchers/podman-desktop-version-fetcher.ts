@@ -5,9 +5,9 @@ import { injectable } from 'inversify';
 export class PodmanDesktopVersionFetcher {
   public static readonly PODMAN_PACKAGE_JSON = 'https://raw.githubusercontent.com/containers/podman-desktop/main/package.json';
 
-  private version: Promise<string | undefined>;
+  private version: Promise<string> | undefined;
 
-  async init(): Promise<string | undefined> {
+  async init(): Promise<string> {
     const response = await axios.get(PodmanDesktopVersionFetcher.PODMAN_PACKAGE_JSON);
     const data = response.data;
     return data.version;

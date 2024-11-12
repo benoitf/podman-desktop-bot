@@ -4,6 +4,7 @@ export interface PushListenerParam {
   owner: string;
 }
 
+// eslint-disable-next-line sonarjs/no-redeclare
 export interface PushListener {
   execute(repo: PushListenerParam): Promise<void>;
 }

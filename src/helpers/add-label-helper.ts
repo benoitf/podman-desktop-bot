@@ -22,7 +22,6 @@ export class AddLabelHelper {
     }
 
     const params: RestEndpointMethodTypes['issues']['addLabels']['parameters'] = {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issue_number: issueInfo.number,
       labels: remainingLabelsToAdd,
       owner: issueInfo.owner,

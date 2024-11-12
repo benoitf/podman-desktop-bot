@@ -3,7 +3,6 @@ import 'reflect-metadata';
 import { Analysis } from './analysis';
 import { Container } from 'inversify';
 import { Logic } from './api/logic';
-import { Octokit } from '@octokit/rest';
 import { OctokitBuilder } from './github/octokit-builder';
 import { apisModule } from './api/apis-module';
 import { fetchersModule } from './fetchers/fetchers-module';
@@ -15,7 +14,12 @@ import { logicModule } from './logic/logic-module';
 export class InversifyBinding {
   private container: Container;
 
-  constructor(private writeToken: string, private readToken: string, private slackUrl: string, private lastStargazersCheck: string) {}
+  constructor(
+    private writeToken: string,
+    private readToken: string,
+    private slackUrl: string,
+    private lastStargazersCheck: string,
+  ) {}
 
   public initBindings(): Container {
     this.container = new Container();

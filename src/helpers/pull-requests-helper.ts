@@ -52,7 +52,7 @@ export class PullRequestsHelper {
         .withRepo(item.node.repository.name)
         .withOwner(item.node.repository.owner.login)
         .withHtmlLink(item.node.url)
-        .withMergingBranch(item.node.baseRefName)
+        .withMergingBranch(item.node.baseRefName),
     );
 
     return pullRequests;
