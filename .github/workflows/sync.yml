@@ -45,5 +45,5 @@ jobs:
     - name: synchronize
       run: |
         yarn
-        yarn run compile
-        node dist/entrypoint.js
+        yarn vite build
+        node dist/entrypoint.cjs
