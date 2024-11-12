@@ -4,6 +4,7 @@
   "author": "Florent Benoit",
   "description": "bot for che",
   "license": "MIT",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@actions/core": "^1.11.1",
