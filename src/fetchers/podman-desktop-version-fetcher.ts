@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class PodmanDesktopVersionFetcher {
-  public static readonly PODMAN_PACKAGE_JSON = 'https://raw.githubusercontent.com/containers/podman-desktop/main/package.json';
+  public static readonly PODMAN_PACKAGE_JSON = 'https://raw.githubusercontent.com/podman-desktop/podman-desktop/main/package.json';
 
   private version: Promise<string | undefined>;
 
