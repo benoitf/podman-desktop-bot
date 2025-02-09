@@ -29,19 +29,23 @@ jobs:
         git clone --branch info https://github.com/benoitf/podman-desktop-bot /tmp/podman-desktop-bot-info
         cd /tmp/podman-desktop-bot-info
         # get the last check time from the file info
-        LAST_TIME_CHECK=$(jq -r .stargazers.lastCheck info.json)
+        LAST_TIME_STARGAZERS_CHECK=$(jq -r .stargazers.lastCheck info.json)
+        LAST_TIME_SLACK_CHECK=$(jq -r .slack.lastCheck info.json)
         echo "Previous time was: $LAST_TIME_CHECK"
         # update the last check time
         export NEW_TIME=$(date --iso-8601=seconds)
         echo "Updating info file with new check time: $NEW_TIME"
         jq -r --arg date "$NEW_TIME" '.stargazers.lastCheck = $date' info.json > info.json.new
+        jq -r --arg date "$NEW_TIME" '.slack.lastCheck = $date' info.json > info.json.new
         mv info.json.new info.json
         git add info.json
         git commit -m "Update last check time"
         git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/benoitf/podman-desktop-bot.git" info
         # store the new value as environment variable
-        echo "INPUT_LAST_STARGAZERS_CHECK=$(echo $LAST_TIME_CHECK)" >> $GITHUB_ENV
-        echo "Check for stargazers since $LAST_TIME_CHECK"
+        echo "INPUT_LAST_STARGAZERS_CHECK=$(echo $LAST_TIME_STARGAZERS_CHECK)" >> $GITHUB_ENV
+        echo "Check for stargazers since $LAST_TIME_STARGAZERS_CHECK"
+        echo "INPUT_LAST_SLACK_CHECK=$(echo $LAST_TIME_SLACK_CHECK)" >> $GITHUB_ENV
+        echo "Check for slack after $LAST_TIME_SLACK_CHECK"
     - name: synchronize
       run: |
         yarn
