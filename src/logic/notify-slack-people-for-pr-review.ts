@@ -68,7 +68,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
     // for each PR, get the user that needs to review it
     // send a message to the user
 
-    const githubUsernames = ['benoitf', 'slemeur'];
+    const githubUsernames = ['axel7083', 'benoitf', 'feloy', 'odockal', 'slemeur'];
 
     for (const githubUsername of githubUsernames) {
       await this.createOrUpdateReport(githubUsername);
