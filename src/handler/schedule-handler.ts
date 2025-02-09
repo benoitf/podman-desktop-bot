@@ -16,7 +16,8 @@ export class ScheduleHandler implements Handler {
   }
 
   async handle(_eventName: string, context: Context): Promise<void> {
+    const allServices = await this.scheduleListeners.getAsyncAll();
     // no payload for schedule
-    await Promise.all(this.scheduleListeners.getAll().map(async listener => listener.execute(context.repo)));
+    await Promise.all(allServices.map(async listener => listener.execute(context.repo)));
   }
 }

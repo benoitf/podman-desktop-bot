@@ -8,7 +8,9 @@ export class Main {
   public static readonly WRITE_TOKEN: string = 'write_token';
   public static readonly READ_TOKEN: string = 'read_token';
   public static readonly SLACK_URL: string = 'slack_url';
+  public static readonly SLACK_TOKEN: string = 'slack_token';
   public static readonly LAST_STARGAZERS_CHECK: string = 'last_stargazers_check';
+  public static readonly LAST_SLACK_CHECK: string = 'last_slack_check';
 
   protected async doStart(): Promise<void> {
     // github write token
@@ -29,15 +31,27 @@ export class Main {
       throw new Error('No Slack Url provided');
     }
 
-    // slack URL
+    // slack Token
+    const slackToken = core.getInput(Main.SLACK_TOKEN);
+    if (!slackToken) {
+      throw new Error('No Slack token provided');
+    }
+
+    // Last stargazers
     const lastStargazersCheck = core.getInput(Main.LAST_STARGAZERS_CHECK);
     if (!lastStargazersCheck) {
       throw new Error('No lastStargazersCheck provided');
     }
 
-    const inversifyBinbding = new InversifyBinding(writeToken, readToken, slackUrl, lastStargazersCheck);
-    const container = inversifyBinbding.initBindings();
-    const analysis = container.get(Analysis);
+    // Last slack check
+    const lastSlackCheck = core.getInput(Main.LAST_SLACK_CHECK);
+    if (!lastSlackCheck) {
+      throw new Error('No lastSlackCheck provided');
+    }
+
+    const inversifyBinbding = new InversifyBinding(writeToken, readToken, slackUrl, lastStargazersCheck, slackToken, lastSlackCheck);
+    const container = await inversifyBinbding.initBindings();
+    const analysis = await container.getAsync(Analysis);
     await analysis.analyze(github.context);
   }
 

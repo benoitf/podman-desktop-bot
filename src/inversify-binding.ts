@@ -5,6 +5,7 @@ import { Container } from 'inversify';
 import { Logic } from './api/logic';
 import { Octokit } from '@octokit/rest';
 import { OctokitBuilder } from './github/octokit-builder';
+import { WebClient } from '@slack/web-api';
 import { apisModule } from './api/apis-module';
 import { fetchersModule } from './fetchers/fetchers-module';
 import { handlersModule } from './handler/handlers-module';
@@ -15,9 +16,16 @@ import { logicModule } from './logic/logic-module';
 export class InversifyBinding {
   private container: Container;
 
-  constructor(private writeToken: string, private readToken: string, private slackUrl: string, private lastStargazersCheck: string) {}
+  constructor(
+    private writeToken: string,
+    private readToken: string,
+    private slackUrl: string,
+    private lastStargazersCheck: string,
+    private slackToken: string,
+    private lastSlackCheck: string
+  ) {}
 
-  public initBindings(): Container {
+  public async initBindings(): Promise<Container> {
     this.container = new Container();
 
     this.container.load(apisModule);
@@ -37,8 +45,11 @@ export class InversifyBinding {
     this.container.bind('string').toConstantValue(`token ${this.readToken}`).whenTargetNamed('GRAPHQL_READ_TOKEN');
     this.container.bind('string').toConstantValue(`token ${this.writeToken}`).whenTargetNamed('GRAPHQL_WRITE_TOKEN');
     this.container.bind('string').toConstantValue(this.lastStargazersCheck).whenTargetNamed('LAST_STARGAZERS_CHECK');
+    this.container.bind('string').toConstantValue(this.lastSlackCheck).whenTargetNamed('LAST_SLACK_CHECK');
 
     this.container.bind('slack-url').toConstantValue(this.slackUrl);
+    const webClient = new WebClient(this.slackToken);
+    this.container.bind('SlackWebClient').toConstantValue(webClient);
 
     this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_SET_MILESTONE_PER_RUN');
     this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_CREATE_MILESTONE_PER_RUN');
@@ -50,7 +61,7 @@ export class InversifyBinding {
     this.container.bind(Analysis).toSelf().inSingletonScope();
 
     // resolve all logics to create instances
-    this.container.getAll(Logic);
+    this.container.getAllAsync(Logic);
 
     return this.container;
   }

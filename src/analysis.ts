@@ -11,7 +11,8 @@ export class Analysis {
   protected readonly handlers: MultiInjectProvider<Handler>;
 
   async analyze(context: Context): Promise<void> {
-    for await (const handler of this.handlers.getAll()) {
+    const handlers = await this.handlers.getAsyncAll();
+    for await (const handler of handlers) {
       if (handler.supports(context.eventName)) {
         await handler.handle(context.eventName, context, context.payload);
       }

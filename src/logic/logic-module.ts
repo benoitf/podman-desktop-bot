@@ -5,6 +5,7 @@ import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';
 import { ApplyTriageOnIssuesLogic } from './apply-triage-on-issues-logic';
 import { Logic } from '../api/logic';
 import { NotifyLatestStargazersLogic } from './notify-latest-stargazers-logic';
+import { NotifySlackPeoplePullRequestReviewLogic } from './notify-slack-people-for-pr-review';
 import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 import { bindMultiInjectProvider } from '../api/multi-inject-provider';
@@ -31,6 +32,11 @@ const logicModule = new ContainerModule((bind: interfaces.Bind) => {
   bind(ScheduleListener).toService(NotifyLatestStargazersLogic);
   bind(PushListener).toService(NotifyLatestStargazersLogic);
   bind(Logic).toService(NotifyLatestStargazersLogic);
+
+  bind(NotifySlackPeoplePullRequestReviewLogic).to(NotifySlackPeoplePullRequestReviewLogic).inSingletonScope();
+  bind(ScheduleListener).toService(NotifySlackPeoplePullRequestReviewLogic);
+  bind(PushListener).toService(NotifySlackPeoplePullRequestReviewLogic);
+  bind(Logic).toService(NotifySlackPeoplePullRequestReviewLogic);
 });
 
 export { logicModule };

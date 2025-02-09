@@ -1,0 +1,73 @@
+{
+    "amisskii": {
+        "id": "U04MS85CSF8"
+    },
+    "axel7083": {
+        "id": "U06C2643YQK"
+    },
+    "benoitf": {
+        "id": "UHNEVBUGM",
+        "notify": {
+            "tz": "Europe/Paris",
+            "times": ["07:00", "17:00"],
+            "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        }
+    },
+    "bmahabirbu": {
+        "id": "U08775RNUMD"
+    },
+    "cbr7": {
+        "id": "U06CGBFL62V"
+    },
+    "cdrage": {
+        "id": "UFJ7QA6TA"
+    },
+    "danivilla9": {
+        "id": "U076QAMUWSG"
+    },
+    "deboer-tim": {
+        "id": "U01AQJC2QKG"
+    },
+    "dgolovin": {
+        "id": "UJFPHAH33"
+    },
+    "ekidneyrh": {
+        "id": "U04NPB4F468"
+    },
+    "feloy": {
+        "id": "U0212NYGWAD"
+    },
+    "Firewall": {
+        "id": "U07JTNJLDLH"
+    },
+    "gastoner": {
+        "id": "U05EVNCEH2B"
+    },
+    "jeffmaury": {
+        "id": "UJMSMB1U7"
+    },
+    "MariaLeonova": {
+        "id": "U0353U9R98A"
+    },
+    "nichjones1": {
+        "id": "U0341579C3U"
+    },
+    "odockal": {
+        "id": "UJNHN7EKW"
+    },
+    "ScrewTSW": {
+        "id": "UJSK5CNQM"
+    },
+    "shipsing": {
+        "id": "U03AWA46B33"
+    },
+    "SoniaSandler": {
+        "id": "U07639B93SS"
+    },
+    "slemeur": {
+        "id": "UJWJJAR9V"
+    },
+    "vzhukovs": {
+        "id": "UJYNT6EH5"
+    }
+}

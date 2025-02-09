@@ -16,7 +16,8 @@ export class PushHandler implements Handler {
   }
 
   async handle(_eventName: string, context: Context): Promise<void> {
+    const listeners = await this.pushListeners.getAsyncAll();
     // no payload for push
-    await Promise.all(this.pushListeners.getAll().map(async pushListener => pushListener.execute(context.repo)));
+    await Promise.all(listeners.map(async pushListener => pushListener.execute(context.repo)));
   }
 }

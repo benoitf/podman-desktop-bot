@@ -1,0 +1,23 @@
+{{#report.allPrs.length}}
+# You have {{report.allPrs.length}} pull requests to review !
+{{/report.allPrs.length}}
+{{^report.allPrs.length}}
+# 🎉 Amazing, no pull request to review 🚀
+{{/report.allPrs.length}}
+
+{{#report.usersPrs.length}}
+## 🔵 {{report.usersPrs.length}} are from users:
+
+  {{#report.usersPrs}}
+- [ ] {{{.}}}
+  {{/report.usersPrs}}
+{{/report.usersPrs.length}}
+
+{{#report.dependabotPrs.length}}
+## 🤖 {{report.dependabotPrs.length}} are from dependabot:
+
+  {{#report.dependabotPrs}}
+- [ ] {{{.}}}
+  {{/report.dependabotPrs}}
+{{/report.dependabotPrs.length}}
+
