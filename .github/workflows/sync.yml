@@ -15,6 +15,7 @@ jobs:
       INPUT_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       INPUT_WRITE_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
       INPUT_SLACK_URL: ${{ secrets.SLACK_URL }}
+      INPUT_SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v4
