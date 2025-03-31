@@ -45,7 +45,7 @@ export class PullRequestReviewsHelper {
         .withHtmlLink(item.node.url)
         .withTitle(item.node.title)
         .withMergingBranch(item.node.baseRefName)
-        .withStatusState(item.node.statusCheckRollup.state)
+        .withStatusState(item.node.statusCheckRollup?.state ?? 'UNKNOWN')
         .withReviewState(item.node.reviewDecision)
         .withAuthor(item.node.author.login)
         .withLastCommitDate(item.node.commits.nodes?.[0]?.commit?.committedDate)
