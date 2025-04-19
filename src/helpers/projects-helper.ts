@@ -23,7 +23,7 @@ export class ProjectsHelper {
     }
 `;
     // id of projects planning
-    const projectId = 'PVT_kwDOAFmk9s4ACTx2';
+    const projectId = 'PVT_kwDOB71_hM4AxfY';
     const contentId = issueInfo.id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
