@@ -1,17 +1,12 @@
 import * as moment from 'moment';
-import * as semver from 'semver';
 
-import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
 import { inject, injectable, named } from 'inversify';
 
-import { AddLabelHelper } from '../helpers/add-label-helper';
-import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
 import { IssuesHelper } from '../helpers/issue-helper';
 import { Logic } from '../api/logic';
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
+
 import { ProjectsHelper } from '../helpers/projects-helper';
 import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestsHelper } from '../helpers/pull-requests-helper';
 import { PushListener } from '../api/push-listener';
 import { ScheduleListener } from '../api/schedule-listener';
 
