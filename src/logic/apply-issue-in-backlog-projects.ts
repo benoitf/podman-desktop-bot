@@ -44,7 +44,7 @@ export class ApplyProjectsOnIssuesLogic implements Logic, ScheduleListener, Push
 
     // already in the planning project, skip it
     const filteredIssues = issues.filter(
-      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOB71_hM4AxfY')
+      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOB71_hM4AxfY6')
     );
 
     // now that we have issues

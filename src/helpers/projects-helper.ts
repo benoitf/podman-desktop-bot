@@ -23,7 +23,7 @@ export class ProjectsHelper {
     }
 `;
     // id of projects planning
-    const projectId = 'PVT_kwDOB71_hM4AxfY';
+    const projectId = 'PVT_kwDOB71_hM4AxfY6';
     const contentId = issueInfo.id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -63,7 +63,7 @@ mutation (
       projectId: projectId,
       itemId: itemId,
       // this is for Status
-      statusField: 'PVTSSF_lADOAFmk9s4ACTx2zgBVZ0o',
+      statusField: 'PVTSSF_lADOB71_hM4AxfY6zgnmBDo',
       // this is for backlog
       statusValue: 'bd2b3a2d',
       headers: {
