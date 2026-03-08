@@ -3,6 +3,7 @@ import { ContainerModule, interfaces } from 'inversify';
 import { ApplyMilestoneOnPullRequestsLogic } from './apply-milestone-on-pull-requests-logic';
 import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';
 import { ApplyTriageOnIssuesLogic } from './apply-triage-on-issues-logic';
+import { ApproveAndMergeDependabotPRLogic } from './approve-and-merge-dependabot-pr';
 import { Logic } from '../api/logic';
 import { NotifyLatestStargazersLogic } from './notify-latest-stargazers-logic';
 import { NotifySlackPeoplePullRequestReviewLogic } from './notify-slack-people-for-pr-review';
@@ -37,6 +38,11 @@ const logicModule = new ContainerModule((bind: interfaces.Bind) => {
   bind(ScheduleListener).toService(NotifySlackPeoplePullRequestReviewLogic);
   bind(PushListener).toService(NotifySlackPeoplePullRequestReviewLogic);
   bind(Logic).toService(NotifySlackPeoplePullRequestReviewLogic);
+
+  bind(ApproveAndMergeDependabotPRLogic).to(ApproveAndMergeDependabotPRLogic).inSingletonScope();
+  bind(ScheduleListener).toService(ApproveAndMergeDependabotPRLogic);
+  bind(PushListener).toService(ApproveAndMergeDependabotPRLogic);
+  bind(Logic).toService(ApproveAndMergeDependabotPRLogic);
 });
 
 export { logicModule };

@@ -1,6 +1,7 @@
 import { PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
 import { inject, injectable, named } from 'inversify';
 
+import { RepositoriesHelper } from './repositories-helper';
 import { graphql } from '@octokit/graphql';
 
 @injectable()
@@ -9,36 +10,59 @@ export class PullRequestReviewsHelper {
   @named('GRAPHQL_READ_TOKEN')
   private graphqlReadToken: string;
 
+  @inject('string')
+  @named('GRAPHQL_WRITE_TOKEN')
+  private graphqlWriteToken: string;
+
   @inject(PullRequestInfoBuilder)
   private pullRequestInfoBuilder: PullRequestInfoBuilder;
 
-  public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {
-    const repositories = [
-      'containers/podman-desktop-extension-ai-lab',
-      'containers/podman-desktop-extension-ai-lab-playground-images',
-      'containers/podman-desktop-internal',
-      'containers/podman-desktop-media',
-      'redhat-developer/podman-desktop-redhat-account-ext',
-      'redhat-developer/podman-desktop-sandbox-ext',
-      'redhat-developer/podman-desktop-rhel-ext',
-      'redhat-developer/podman-desktop-demo',
-      'redhat-developer/podman-desktop-image-checker-openshift-ext',
-      'redhat-developer/podman-desktop-redhat-pack-ext',
-      'crc-org/crc-extension',
-    ];
-    const repositoriesQuery = repositories.map(repo => `repo:${repo}`).join(' ');
+  @inject(RepositoriesHelper)
+  private repositoriesHelper: RepositoriesHelper;
 
-    const organizations = ['podman-desktop'];
-    const organizationsQuery = organizations.map(org => `org:${org}`).join(' ');
+  public async getDependabotPullRequestsRequiringReviewAndPassingAllChecks(): Promise<PullRequestInfo[]> {
+    const repositoriesQuery = this.repositoriesHelper
+      .getRepositoriesToWatch()
+      .map(repo => `repo:${repo}`)
+      .join(' ');
+    const organizationsQuery = this.repositoriesHelper
+      .getOrganizationsToWatch()
+      .map(org => `org:${org}`)
+      .join(' ');
+
+    // we want to get all dependabot PRs that are open, not draft, with dependabot as author
+    // status:success is not used as it only checks the legacy commit status API, not check runs/check suites
+    // instead, we filter by statusCheckRollup after fetching
+    const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false author:dependabot[bot]`;
+
+    const allPullRequests = await this.getPullRequests(queryString);
+    return allPullRequests.filter(pr => pr.statusState === 'SUCCESS');
+  }
+
+  public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {
+    const repositoriesQuery = this.repositoriesHelper
+      .getRepositoriesToWatch()
+      .map(repo => `repo:${repo}`)
+      .join(' ');
+    const organizationsQuery = this.repositoriesHelper
+      .getOrganizationsToWatch()
+      .map(org => `org:${org}`)
+      .join(' ');
 
     const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false review-requested:${username}`;
+    return this.getPullRequests(queryString);
+  }
+
+  protected async getPullRequests(queryString: string): Promise<PullRequestInfo[]> {
     const lastMergedPullRequestSearch = await this.doGetPullRequestsToReview(queryString);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pullRequests: PullRequestInfo[] = lastMergedPullRequestSearch.map((item: any) => {
       return this.pullRequestInfoBuilder
         .build()
+        .withId(item.node.id)
         .withMergedAt(item.node.mergedAt)
+        .withBody(item.node.body)
         .withNumber(item.node.number)
         .withRepo(item.node.repository.name)
         .withOwner(item.node.repository.owner.login)
@@ -48,11 +72,53 @@ export class PullRequestReviewsHelper {
         .withStatusState(item.node.statusCheckRollup?.state ?? 'UNKNOWN')
         .withReviewState(item.node.reviewDecision)
         .withAuthor(item.node.author.login)
+        .withAutoMergeEnabled(item.node.autoMergeRequest !== null)
         .withLastCommitDate(item.node.commits.nodes?.[0]?.commit?.committedDate)
         .computeAge();
     });
 
     return pullRequests;
+  }
+
+  public async approvePullRequest(pullRequest: PullRequestInfo): Promise<void> {
+    const mutation = `
+    mutation approvePullRequest($pullRequestId: ID!) {
+      addPullRequestReview(input: { pullRequestId: $pullRequestId, event: APPROVE }) {
+        pullRequestReview {
+          state
+        }
+      }
+    }
+    `;
+
+    await graphql(mutation, {
+      pullRequestId: pullRequest.id,
+      headers: {
+        authorization: this.graphqlWriteToken,
+      },
+    });
+  }
+
+  public async setAutoMerge(pullRequest: PullRequestInfo, mergeMethod: 'MERGE' | 'SQUASH' | 'REBASE'): Promise<void> {
+    const mutation = `
+    mutation enableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+      enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
+        pullRequest {
+          autoMergeRequest {
+            enabledAt
+          }
+        }
+      }
+    }
+    `;
+
+    await graphql(mutation, {
+      pullRequestId: pullRequest.id,
+      mergeMethod,
+      headers: {
+        authorization: this.graphqlWriteToken,
+      },
+    });
   }
 
   protected async doGetPullRequestsToReview(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
@@ -73,10 +139,12 @@ export class PullRequestReviewsHelper {
         edges {
           node {
             ... on PullRequest {
+              id
               url
               mergedAt
               title
               number
+              body
               repository {
                 name
                 owner {
@@ -101,6 +169,9 @@ export class PullRequestReviewsHelper {
                 login
               }     
               reviewDecision
+              autoMergeRequest {
+                enabledAt
+              }
               baseRefName
               milestone {
                 number

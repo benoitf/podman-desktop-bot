@@ -26,6 +26,8 @@ export class PullRequestInfo extends IssueInfo {
 
   private __lastCommitDate: string;
 
+  private __autoMergeEnabled: boolean = false;
+
   public withLinkedIssues(linkedIssues: IssueInfo[]): PullRequestInfo {
     this.__linkedIssues = linkedIssues;
     return this;
@@ -113,6 +115,15 @@ export class PullRequestInfo extends IssueInfo {
 
   public withTitle(title: string): PullRequestInfo {
     this.__title = title;
+    return this;
+  }
+
+  public get autoMergeEnabled(): boolean {
+    return this.__autoMergeEnabled;
+  }
+
+  public withAutoMergeEnabled(autoMergeEnabled: boolean): PullRequestInfo {
+    this.__autoMergeEnabled = autoMergeEnabled;
     return this;
   }
 }
