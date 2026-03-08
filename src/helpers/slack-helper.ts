@@ -137,7 +137,6 @@ export class SlackHelper {
     // get the timezone of the user to be within new york
     const timezone = slackUser.notify?.tz;
     if (timezone) {
-
       const lastSlackCheckDate = new Date(this.lastSlackCheck);
       const lastSlackCheckDateInUserTimeZone = new Date(lastSlackCheckDate.toLocaleString('en-US', { timeZone: timezone }));
       const now = new Date();

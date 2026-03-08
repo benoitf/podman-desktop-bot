@@ -4,7 +4,6 @@ import { inject, injectable, named } from 'inversify';
 
 import { IssuesHelper } from '../helpers/issue-helper';
 import { Logic } from '../api/logic';
-
 import { ProjectsHelper } from '../helpers/projects-helper';
 import { PullRequestInfo } from '../info/pull-request-info';
 import { PushListener } from '../api/push-listener';
