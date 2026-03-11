@@ -18,6 +18,7 @@ export class RepositoriesHelper {
       'redhat-developer/podman-desktop-image-checker-openshift-ext',
       'redhat-developer/podman-desktop-redhat-lightspeed-ext',
       'redhat-developer/podman-desktop-redhat-pack-ext',
+      'crc-org/macadam.js',
       'crc-org/crc-extension',
       'minc-org/minc-extension'
     ];
