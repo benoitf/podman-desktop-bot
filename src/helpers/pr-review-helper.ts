@@ -59,7 +59,7 @@ export class PullRequestReviewsHelper {
       return true;
     }
 
-    return filteredChecks.every(check => check.state === 'SUCCESS' || check.state === 'NEUTRAL');
+    return filteredChecks.every(check => check.state === 'SUCCESS' || check.state === 'NEUTRAL' || check.state === 'SKIPPED');
   }
 
   public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {
