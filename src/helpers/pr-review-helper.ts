@@ -33,11 +33,15 @@ export class PullRequestReviewsHelper {
 
     // we want to get all dependabot PRs that are open, not draft, with dependabot as author
     // status:success is not used as it only checks the legacy commit status API, not check runs/check suites
-    // instead, we filter by statusCheckRollup after fetching
-    const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false author:dependabot[bot]`;
+    // filter out also the one we already approved
+    // instead, we get all PRs and then filter by statusState and checkContexts to exclude the bot check contexts and rely on the rollup state only if no individual check contexts are available
+    const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false author:dependabot[bot] -reviewed-by:podman-desktop-bot`;
 
     const allPullRequests = await this.getPullRequests(queryString);
-    return allPullRequests.filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
+
+    // filter out all PRS that have a failed check
+    // and exclude domain check status after that
+    return allPullRequests.filter(pr => pr.statusState !== 'FAILURE').filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
   }
 
   private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo): boolean {
@@ -55,7 +59,7 @@ export class PullRequestReviewsHelper {
       return true;
     }
 
-    return filteredChecks.every(check => check.state === 'SUCCESS');
+    return filteredChecks.every(check => check.state === 'SUCCESS' || check.state === 'NEUTRAL');
   }
 
   public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {

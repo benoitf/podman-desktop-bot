@@ -13,7 +13,6 @@ export class RepositoriesHelper {
       'redhat-developer/podman-desktop-hummingbird-ext',
       'redhat-developer/podman-desktop-sandbox-ext',
       'redhat-developer/podman-desktop-rhel-ext',
-      'redhat-developer/podman-desktop-demo',
       'redhat-developer/podman-desktop-catalog',
       'redhat-developer/podman-desktop-image-checker-openshift-ext',
       'redhat-developer/podman-desktop-redhat-lightspeed-ext',
