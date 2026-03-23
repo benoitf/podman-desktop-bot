@@ -12,7 +12,7 @@ export class ScheduleHandler implements Handler {
   protected readonly scheduleListeners: MultiInjectProvider<ScheduleListener>;
 
   supports(eventName: string): boolean {
-    return 'schedule' === eventName;
+    return 'schedule' === eventName || 'workflow_dispatch' === eventName;
   }
 
   async handle(_eventName: string, context: Context): Promise<void> {
