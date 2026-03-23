@@ -9,6 +9,12 @@ import { PullRequestInfoLinkedIssuesExtractor } from './pull-request-info-linked
 export type StatusState = 'SUCCESS' | 'FAILURE' | 'ERROR' | 'PENDING' | 'EXPECTED' | 'UNEXPECTED' | 'UNKNOWN';
 
 export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED' | 'PENDING';
+
+export type CheckContext = {
+  name: string;
+  state: string;
+  typename: string;
+};
 export class PullRequestInfo extends IssueInfo {
   private __merged: boolean;
   private __mergingBranch: string;
@@ -27,6 +33,8 @@ export class PullRequestInfo extends IssueInfo {
   private __lastCommitDate: string;
 
   private __autoMergeEnabled: boolean = false;
+
+  private __checkContexts: CheckContext[] = [];
 
   public withLinkedIssues(linkedIssues: IssueInfo[]): PullRequestInfo {
     this.__linkedIssues = linkedIssues;
@@ -124,6 +132,15 @@ export class PullRequestInfo extends IssueInfo {
 
   public withAutoMergeEnabled(autoMergeEnabled: boolean): PullRequestInfo {
     this.__autoMergeEnabled = autoMergeEnabled;
+    return this;
+  }
+
+  public get checkContexts(): CheckContext[] {
+    return this.__checkContexts;
+  }
+
+  public withCheckContexts(checkContexts: CheckContext[]): PullRequestInfo {
+    this.__checkContexts = checkContexts;
     return this;
   }
 }

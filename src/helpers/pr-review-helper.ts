@@ -1,4 +1,4 @@
-import { PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
+import { CheckContext, PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
 import { inject, injectable, named } from 'inversify';
 
 import { RepositoriesHelper } from './repositories-helper';
@@ -6,6 +6,7 @@ import { graphql } from '@octokit/graphql';
 
 @injectable()
 export class PullRequestReviewsHelper {
+  private static readonly BOT_CHECK_NAMES_TO_EXCLUDE = ['Domain Review Status'];
   @inject('string')
   @named('GRAPHQL_READ_TOKEN')
   private graphqlReadToken: string;
@@ -36,7 +37,25 @@ export class PullRequestReviewsHelper {
     const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false author:dependabot[bot]`;
 
     const allPullRequests = await this.getPullRequests(queryString);
-    return allPullRequests.filter(pr => pr.statusState === 'SUCCESS');
+    return allPullRequests.filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
+  }
+
+  private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo): boolean {
+    // if no individual check contexts available, fall back to the rollup state
+    if (pr.checkContexts.length === 0) {
+      return pr.statusState === 'SUCCESS';
+    }
+
+    const filteredChecks = pr.checkContexts.filter(
+      check => !PullRequestReviewsHelper.BOT_CHECK_NAMES_TO_EXCLUDE.includes(check.name)
+    );
+
+    // if all checks were excluded, fall back to accepting
+    if (filteredChecks.length === 0) {
+      return true;
+    }
+
+    return filteredChecks.every(check => check.state === 'SUCCESS');
   }
 
   public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {
@@ -70,6 +89,7 @@ export class PullRequestReviewsHelper {
         .withTitle(item.node.title)
         .withMergingBranch(item.node.baseRefName)
         .withStatusState(item.node.statusCheckRollup?.state ?? 'UNKNOWN')
+        .withCheckContexts(this.extractCheckContexts(item.node.statusCheckRollup?.contexts?.nodes))
         .withReviewState(item.node.reviewDecision)
         .withAuthor(item.node.author.login)
         .withAutoMergeEnabled(item.node.autoMergeRequest !== null)
@@ -121,6 +141,20 @@ export class PullRequestReviewsHelper {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extractCheckContexts(nodes: any[] | undefined): CheckContext[] {
+    if (!nodes) {
+      return [];
+    }
+    return nodes.map(node => {
+      if (node.__typename === 'CheckRun') {
+        return { name: node.name, state: node.conclusion ?? node.status, typename: node.__typename };
+      }
+      // StatusContext
+      return { name: node.context, state: node.state, typename: node.__typename };
+    });
+  }
+
   protected async doGetPullRequestsToReview(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
     const query = `
     query getPullRequestsToReview($queryString: String!, $cursorAfter: String) {
@@ -157,6 +191,21 @@ export class PullRequestReviewsHelper {
               }
               statusCheckRollup {
                 state
+                contexts(first: 100) {
+                  nodes {
+                    ... on CheckRun {
+                      __typename
+                      name
+                      conclusion
+                      status
+                    }
+                    ... on StatusContext {
+                      __typename
+                      context
+                      state
+                    }
+                  }
+                }
               }
               commits (last:1) {
                 nodes {
