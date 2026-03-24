@@ -23,9 +23,14 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: pnpm/action-setup@v4
+      name: Install pnpm
       with:
-        node-version: '20'
+        run_install: false
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: 'pnpm'
     - name: Keep workflow alive
       run: |
         git config --global user.email "bot@podman-desktop.io"
@@ -36,7 +41,8 @@ jobs:
         git add last-run.txt
         git commit -m "Keep workflow alive" || true
         git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/benoitf/podman-desktop-bot.git" info || true
-    - uses: pnpm/action-setup@v4
+    - name: Execute pnpm
+      run: pnpm install --frozen-lockfile
     - name: synchronize
       run: |
         pnpm install

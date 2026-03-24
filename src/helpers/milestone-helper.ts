@@ -30,8 +30,12 @@ export class MilestoneHelper {
   @named('WRITE_TOKEN')
   private octokitWrite: InstanceType<typeof GitHub>;
 
-  public async createMilestone(repoOwner: string, repoName: string, milestoneDefinition: MilestoneDefinition): Promise<void> {
-    // create milestone on the repo
+  public async createMilestone(
+    repoOwner: string,
+    repoName: string,
+    milestoneDefinition: MilestoneDefinition,
+  ): Promise<void> {
+    // Create milestone on the repo
     const issuesCreateMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] = {
       owner: repoOwner,
       repo: repoName,
@@ -45,7 +49,6 @@ export class MilestoneHelper {
 
     // eslint-disable-next-line no-null/no-null
     if (milestoneDefinition.dueOn !== null) {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issuesCreateMilestoneParams.due_on = milestoneDefinition.dueOn;
     }
 
@@ -53,12 +56,15 @@ export class MilestoneHelper {
     await this.octokitWrite.rest.issues.createMilestone(issuesCreateMilestoneParams);
   }
 
-  public async updateMilestone(repoOwner: string, repoName: string, milestoneDefinition: MilestoneDefinition): Promise<void> {
-    // create milestone on the repo
-    const issuesUpdateMilestoneParams: any = {
+  public async updateMilestone(
+    repoOwner: string,
+    repoName: string,
+    milestoneDefinition: MilestoneDefinition,
+  ): Promise<void> {
+    // Create milestone on the repo
+    const issuesUpdateMilestoneParams: RestEndpointMethodTypes['issues']['updateMilestone']['parameters'] = {
       owner: repoOwner,
       repo: repoName,
-      // eslint-disable-next-line @typescript-eslint/camelcase
       milestone_number: milestoneDefinition.number,
       title: milestoneDefinition.title,
       state: milestoneDefinition.state,
@@ -71,7 +77,6 @@ export class MilestoneHelper {
 
     // eslint-disable-next-line no-null/no-null
     if (milestoneDefinition.dueOn !== null) {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issuesUpdateMilestoneParams.due_on = milestoneDefinition.dueOn;
     }
     console.log('Update milestone with params', issuesUpdateMilestoneParams);
@@ -79,11 +84,11 @@ export class MilestoneHelper {
   }
 
   public async searchMilestones(repositories: string[]): Promise<Map<string, Map<string, MilestoneDefinition>>> {
-    // add repo: prefix on repositories
+    // Add repo: prefix on repositories
     const queryRepositories = repositories.map(repository => `repo:${repository}`).join(' ');
     const milestoneSearch = await this.doSearchMilestones(queryRepositories);
 
-    // received array of edges looking like:
+    // Received array of edges looking like:
     //
     // [
     //   {
@@ -105,20 +110,20 @@ export class MilestoneHelper {
     const milestones: Map<string, Map<string, MilestoneDefinition>> = new Map();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    milestoneSearch.map((item: any) => {
-      // get short repository name
+    milestoneSearch.forEach((item: any) => {
+      // Get short repository name
       const repoName = `${item.node.owner.login}/${item.node.name}`;
 
-      // create map
+      // Create map
       const milestoneMap: Map<string, MilestoneDefinition> = new Map();
 
-      // for every nodes, add milestone
+      // For every nodes, add milestone
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       item.node.milestones.nodes.forEach((milestoneNode: any) => {
         milestoneNode.state = milestoneNode.state.toLowerCase();
         milestoneMap.set(milestoneNode.title, milestoneNode as MilestoneDefinition);
       });
-      const existing = milestones.get(repoName) || new Map();
+      const existing = milestones.get(repoName) ?? new Map();
       milestones.set(repoName, new Map([...milestoneMap, ...existing]));
     });
 
@@ -129,7 +134,7 @@ export class MilestoneHelper {
     queryRepositories: string,
     cursorRepository?: string,
     cursorMilestones?: string,
-    previousMilestones?: unknown[]
+    previousMilestones?: unknown[],
   ): Promise<unknown[]> {
     const query = `
     query getMilestones($queryRepositories: String!, $cursorRepositoryAfter: String, $cursorMilestoneAfter: String){
@@ -197,41 +202,42 @@ export class MilestoneHelper {
       allGraphQlResponse = graphQlResponse.search.edges;
     }
 
-    // need to loop again on milestones before looping on repositories
+    // Need to loop again on milestones before looping on repositories
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const milestonesWithNextCursors: Array<any> = graphQlResponse.search.edges
-      .map((edge: any) => {
+    const milestonesWithNextCursors: Array<string | undefined> = graphQlResponse.search.edges
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((edge: Record<string, any>) => {
         if (edge.node.milestones.pageInfo?.hasNextPage) {
           return edge.node.milestones.pageInfo.endCursor;
         } else {
           return undefined;
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       })
-      .filter((value: any) => {
-        if (value) {
-          return value;
-        }
-      });
+      .filter((value: string | undefined): value is string => !!value);
     let nextCursorMilestone;
     if (milestonesWithNextCursors.length > 0) {
       nextCursorMilestone = milestonesWithNextCursors[0];
     }
 
     if (nextCursorMilestone) {
-      // needs to redo the search starting from the last search
-      return await this.doSearchMilestones(queryRepositories, cursorRepository, nextCursorMilestone, allGraphQlResponse);
+      // Needs to redo the search starting from the last search
+      return await this.doSearchMilestones(
+        queryRepositories,
+        cursorRepository,
+        nextCursorMilestone,
+        allGraphQlResponse,
+      );
     } else if (graphQlResponse.search.pageInfo.hasNextPage) {
-      // needs to redo the search starting from the last search
+      // Needs to redo the search starting from the last search
       return await this.doSearchMilestones(
         queryRepositories,
         graphQlResponse.search.pageInfo.endCursor,
         cursorMilestones,
-        allGraphQlResponse
+        allGraphQlResponse,
       );
     }
 
-    // from reverse order
+    // From reverse order
     return allGraphQlResponse.reverse();
   }
 }

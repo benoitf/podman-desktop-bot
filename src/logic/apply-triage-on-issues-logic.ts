@@ -1,18 +1,13 @@
-import * as moment from 'moment';
-import * as semver from 'semver';
+import moment from 'moment';
 
-import { TagDefinition, TagsHelper } from '../helpers/tags-helper';
 import { inject, injectable, named } from 'inversify';
 
-import { AddLabelHelper } from '../helpers/add-label-helper';
-import { IssueMilestoneHelper } from '../helpers/issue-milestone-helper';
-import { IssuesHelper } from '../helpers/issue-helper';
-import { Logic } from '../api/logic';
-import { PodmanDesktopVersionFetcher } from '../fetchers/podman-desktop-version-fetcher';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestsHelper } from '../helpers/pull-requests-helper';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
+import { AddLabelHelper } from '/@/helpers/add-label-helper';
+import { IssuesHelper } from '/@/helpers/issue-helper';
+import { Logic } from '/@/api/logic';
+import { PullRequestInfo } from '/@/info/pull-request-info';
+import { PushListener } from '/@/api/push-listener';
+import { ScheduleListener } from '/@/api/schedule-listener';
 
 export interface MilestoneDefinition {
   pullRequestInfo: PullRequestInfo;
@@ -38,11 +33,11 @@ export class ApplyTriageOnIssuesLogic implements Logic, ScheduleListener, PushLi
   }
 
   async execute(): Promise<void> {
-    // get all recent issues
+    // Get all recent issues
     const issues = await this.issuesHelper.getRecentIssues(moment.duration(1, 'hour'));
 
-    // if they already have an area, skip it
-    // if it contains needs/triage, skip it as well
+    // If they already have an area, skip it
+    // If it contains needs/triage, skip it as well
     const filteredIssues = issues.filter(issue => {
       const labels = issue.labels;
       const hasArea = labels.find(label => label.startsWith('area/'));
@@ -50,19 +45,21 @@ export class ApplyTriageOnIssuesLogic implements Logic, ScheduleListener, PushLi
       return !hasArea && !hasNeedsTriage;
     });
 
-    // now that we have, issues
-    // add the status/need-triage label
+    // Now that we have, issues
+    // Add the status/need-triage label
     console.log(`status/need-triage issues to set: ${filteredIssues.length}`);
 
     if (filteredIssues.length > this.maxSetMIssuesPerRun) {
       filteredIssues.length = this.maxSetMIssuesPerRun;
-      console.log(`status/need-triage issues to set > ${this.maxSetMIssuesPerRun}, keep only ${this.maxSetMIssuesPerRun} for this run`);
+      console.log(
+        `status/need-triage issues to set > ${this.maxSetMIssuesPerRun}, keep only ${this.maxSetMIssuesPerRun} for this run`,
+      );
     }
 
-    // apply label
-    // do update of milestones in all repositories
-    for await (const entry of filteredIssues) {
-      // do not flush too many calls at once on github
+    // Apply label
+    // Do update of milestones in all repositories
+    for (const entry of filteredIssues) {
+      // Do not flush too many calls at once on github
       await this.wait(500);
       await this.addLabelHelper.addLabel(['status/need-triage'], entry);
     }

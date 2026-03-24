@@ -1,25 +1,30 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import 'reflect-metadata';
 
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
-import { MilestoneDefinition, MilestoneHelper } from '../../src/helpers/milestone-helper';
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
+import type { MilestoneDefinition } from './milestone-helper';
+import { MilestoneHelper } from './milestone-helper';
 
 import { Container } from 'inversify';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
-import { graphql } from '@octokit/graphql';
+import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
-describe('Test Helper MilestoneHelper', () => {
+const { graphqlMock } = vi.hoisted(() => ({ graphqlMock: vi.fn<(...args: unknown[]) => unknown>() }));
+// @ts-expect-error partial mock factory
+vi.mock(import('@octokit/graphql'), () => ({
+  graphql: graphqlMock,
+}));
+
+describe('test Helper MilestoneHelper', () => {
   let container: Container;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let octokit: {
     rest: {
       issues: {
-        createMilestone: jest.Mock<any, any>;
-        updateMilestone: jest.Mock<any, any>;
+        createMilestone: Mock;
+        updateMilestone: Mock;
       };
     };
   };
@@ -29,15 +34,20 @@ describe('Test Helper MilestoneHelper', () => {
     container.bind(MilestoneHelper).toSelf().inSingletonScope();
     octokit = {
       rest: {
-        issues: { createMilestone: jest.fn(), updateMilestone: jest.fn() },
+        issues: {
+          createMilestone: vi.fn<(...args: unknown[]) => unknown>(),
+          updateMilestone: vi.fn<(...args: unknown[]) => unknown>(),
+        },
       },
     };
 
     container.bind('Octokit').toConstantValue(octokit);
-    container.bind('string').toConstantValue('fooToken').whenTargetNamed('GRAPHQL_READ_TOKEN');
+    container.bind('string').toConstantValue('fooToken').whenNamed('GRAPHQL_READ_TOKEN');
   });
 
-  test('test call correct API for create milestone', async () => {
+  test('call correct API for create milestone', async () => {
+    expect.assertions(7);
+
     const addMilestoneHelper = container.get(MilestoneHelper);
 
     const milestoneToAdd = 'milestone-to-add';
@@ -58,9 +68,11 @@ describe('Test Helper MilestoneHelper', () => {
     };
     await addMilestoneHelper.createMilestone(repoOwner, repoName, milestoneDetails);
 
-    expect(octokit.rest.issues.createMilestone).toBeCalled();
+    expect(octokit.rest.issues.createMilestone).toHaveBeenCalledWith(expect.anything());
+
     const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
       octokit.rest.issues.createMilestone.mock.calls[0][0];
+
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.due_on).toBe(milestoneDueOn);
     expect(createMilestoneParams.description).toBe(milestoneDescription);
@@ -69,7 +81,9 @@ describe('Test Helper MilestoneHelper', () => {
     expect(createMilestoneParams.repo).toBe(repoName);
   });
 
-  test('test call correct API for create milestone with null', async () => {
+  test('call correct API for create milestone with null', async () => {
+    expect.assertions(7);
+
     const addMilestoneHelper = container.get(MilestoneHelper);
 
     const milestoneToAdd = 'milestone-to-add';
@@ -90,9 +104,11 @@ describe('Test Helper MilestoneHelper', () => {
     };
     await addMilestoneHelper.createMilestone(repoOwner, repoName, milestoneDetails);
 
-    expect(octokit.rest.issues.createMilestone).toBeCalled();
+    expect(octokit.rest.issues.createMilestone).toHaveBeenCalledWith(expect.anything());
+
     const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
       octokit.rest.issues.createMilestone.mock.calls[0][0];
+
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.due_on).toBeUndefined();
     expect(createMilestoneParams.description).toBeUndefined();
@@ -101,7 +117,9 @@ describe('Test Helper MilestoneHelper', () => {
     expect(createMilestoneParams.repo).toBe(repoName);
   });
 
-  test('test call correct API for update milestone', async () => {
+  test('call correct API for update milestone', async () => {
+    expect.assertions(8);
+
     const addMilestoneHelper = container.get(MilestoneHelper);
 
     const milestoneToAdd = 'milestone-to-update';
@@ -122,9 +140,11 @@ describe('Test Helper MilestoneHelper', () => {
     };
     await addMilestoneHelper.updateMilestone(repoOwner, repoName, milestoneDetails);
 
-    expect(octokit.rest.issues.updateMilestone).toBeCalled();
+    expect(octokit.rest.issues.updateMilestone).toHaveBeenCalledWith(expect.anything());
+
     const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
       octokit.rest.issues.updateMilestone.mock.calls[0][0];
+
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.milestone_number).toBe(milestoneNumber);
     expect(createMilestoneParams.due_on).toBe(milestoneDueOn);
@@ -134,7 +154,9 @@ describe('Test Helper MilestoneHelper', () => {
     expect(createMilestoneParams.repo).toBe(repoName);
   });
 
-  test('test call correct API for update milestone with null', async () => {
+  test('call correct API for update milestone with null', async () => {
+    expect.assertions(8);
+
     const addMilestoneHelper = container.get(MilestoneHelper);
 
     const milestoneToAdd = 'milestone-to-update';
@@ -155,9 +177,11 @@ describe('Test Helper MilestoneHelper', () => {
     };
     await addMilestoneHelper.updateMilestone(repoOwner, repoName, milestoneDetails);
 
-    expect(octokit.rest.issues.updateMilestone).toBeCalled();
+    expect(octokit.rest.issues.updateMilestone).toHaveBeenCalledWith(expect.anything());
+
     const createMilestoneParams: RestEndpointMethodTypes['issues']['createMilestone']['parameters'] =
       octokit.rest.issues.updateMilestone.mock.calls[0][0];
+
     expect(createMilestoneParams.title).toBe(milestoneToAdd);
     expect(createMilestoneParams.milestone_number).toBe(milestoneNumber);
     expect(createMilestoneParams.due_on).toBeUndefined();
@@ -168,56 +192,65 @@ describe('Test Helper MilestoneHelper', () => {
   });
 
   test('search milestone', async () => {
+    expect.assertions(8);
+
     const milestoneHelper = container.get(MilestoneHelper);
-    jest.mock('@octokit/graphql');
     const json = await fs.readFile(path.join(__dirname, '..', '_data', 'helper', 'search-milestone.json'), 'utf8');
     const parsedJSON = JSON.parse(json);
-    (graphql as any).__setDefaultExports(parsedJSON);
+    graphqlMock.mockReturnValueOnce(parsedJSON);
 
     const anotherSON = JSON.parse(json);
     anotherSON.search.pageInfo.hasNextPage = false;
-    (graphql as any).__setDefaultExports(anotherSON);
+    graphqlMock.mockReturnValueOnce(anotherSON);
     const map = await milestoneHelper.searchMilestones(['eclipse/che']);
 
-    // should have 3 repositories with milestones
+    // Should have 3 repositories with milestones
     expect(map.size).toBe(3);
 
     const cheMilestones = map.get('eclipse/che');
 
     expect(cheMilestones).toBeDefined();
+
     const milestone760 = cheMilestones!.get('7.6.0');
+
     expect(milestone760).toBeDefined();
     expect(milestone760!.description).toBe('');
     expect(milestone760!.number).toBe(107);
-    expect(milestone760!.title).toEqual('7.6.0');
-    expect(milestone760!.state).toEqual('closed');
-    expect(milestone760!.dueOn).toEqual('2019-12-18T00:00:00Z');
+    expect(milestone760!.title).toBe('7.6.0');
+    expect(milestone760!.state).toBe('closed');
+    expect(milestone760!.dueOn).toBe('2019-12-18T00:00:00Z');
   });
 
   test('search milestone with additional entries', async () => {
+    expect.assertions(8);
+
     const milestoneHelper = container.get(MilestoneHelper);
-    jest.mock('@octokit/graphql');
-    const json = await fs.readFile(path.join(__dirname, '..', '_data', 'helper', 'search-milestone-additional-entries.json'), 'utf8');
+    const json = await fs.readFile(
+      path.join(__dirname, '..', '_data', 'helper', 'search-milestone-additional-entries.json'),
+      'utf8',
+    );
     const parsedJSON = JSON.parse(json);
-    (graphql as any).__setDefaultExports(parsedJSON);
+    graphqlMock.mockReturnValueOnce(parsedJSON);
 
     const anotherSON = JSON.parse(json);
     anotherSON.search.edges[0].node.milestones.pageInfo.hasNextPage = false;
-    (graphql as any).__setDefaultExports(anotherSON);
+    graphqlMock.mockReturnValueOnce(anotherSON);
     const map = await milestoneHelper.searchMilestones(['eclipse/che']);
 
-    // should have 1 repositories with milestones
+    // Should have 1 repositories with milestones
     expect(map.size).toBe(1);
 
     const cheMilestones = map.get('eclipse/che');
 
     expect(cheMilestones).toBeDefined();
+
     const milestone760 = cheMilestones!.get('7.6.0');
+
     expect(milestone760).toBeDefined();
     expect(milestone760!.description).toBe('');
     expect(milestone760!.number).toBe(107);
-    expect(milestone760!.title).toEqual('7.6.0');
-    expect(milestone760!.state).toEqual('closed');
-    expect(milestone760!.dueOn).toEqual('2019-12-18T00:00:00Z');
+    expect(milestone760!.title).toBe('7.6.0');
+    expect(milestone760!.state).toBe('closed');
+    expect(milestone760!.dueOn).toBe('2019-12-18T00:00:00Z');
   });
 });

@@ -1,22 +1,22 @@
-import { inject, injectable, named } from 'inversify';
+import { Container, inject, injectable } from 'inversify';
 
-import { Context } from '@actions/github/lib/context';
+import { context } from '@actions/github/lib/utils';
 import { GitHubVariablesHelper } from './helpers/github-variables-helper';
 import { Handler } from './api/handler';
-import { MultiInjectProvider } from './api/multi-inject-provider';
+
+type Context = typeof context;
 
 @injectable()
 export class Analysis {
-  @inject(MultiInjectProvider)
-  @named(Handler)
-  protected readonly handlers: MultiInjectProvider<Handler>;
+  @inject(Container)
+  protected readonly container: Container;
 
   @inject(GitHubVariablesHelper)
   private gitHubVariablesHelper: GitHubVariablesHelper;
 
   async analyze(context: Context): Promise<void> {
-    const handlers = await this.handlers.getAsyncAll();
-    for await (const handler of handlers) {
+    const handlers = await this.container.getAllAsync<Handler>(Handler);
+    for (const handler of handlers) {
       if (handler.supports(context.eventName)) {
         await handler.handle(context.eventName, context, context.payload);
       }

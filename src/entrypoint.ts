@@ -49,7 +49,10 @@ process.on('SIGINT', () => {
       };
       setTimeout(checkShutdown, 1000);
     });
-  } while (!shuttingDown && (Date.now() - startTime) < MAX_DURATION_MS);
+  } while (!shuttingDown && Date.now() - startTime < MAX_DURATION_MS);
 
   console.log(`Bot loop ended after ${iteration} iteration(s).`);
-})();
+})().catch((error: unknown) => {
+  console.error('Fatal error in bot loop:', error);
+  process.exit(1);
+});

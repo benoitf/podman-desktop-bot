@@ -1,6 +1,6 @@
 import { inject, injectable, named } from 'inversify';
 
-import { IssueInfo } from '../info/issue-info';
+import { IssueInfo } from '/@/info/issue-info';
 import { graphql } from '@octokit/graphql';
 
 @injectable()
@@ -10,9 +10,9 @@ export class ProjectsHelper {
   private graphqlWriteToken: string;
 
   public async setBacklogProjects(issueInfo: IssueInfo): Promise<void> {
-    // search if milestone is already defined
+    // Search if milestone is already defined
 
-    // add the issue to the project
+    // Add the issue to the project
     const query = `
     mutation($projectId:ID!, $contentId:ID!) {
       addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
@@ -22,11 +22,10 @@ export class ProjectsHelper {
       }
     }
 `;
-    // id of projects planning
+    // Id of projects planning
     const projectId = 'PVT_kwDOB71_hM4AxfY6';
     const contentId = issueInfo.id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
     const graphQlResponse: any = await graphql(query, {
       projectId: projectId,
       contentId: contentId,
@@ -59,12 +58,12 @@ mutation (
 }
 `;
 
-    const graphQlResponse2: any = await graphql(querySetProject, {
+    await graphql(querySetProject, {
       projectId: projectId,
       itemId: itemId,
-      // this is for Status
+      // This is for Status
       statusField: 'PVTSSF_lADOB71_hM4AxfY6zgnmBDo',
-      // this is for backlog
+      // This is for backlog
       statusValue: 'bd2b3a2d',
       headers: {
         authorization: this.graphqlWriteToken,

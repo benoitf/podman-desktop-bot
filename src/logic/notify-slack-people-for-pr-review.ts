@@ -1,14 +1,14 @@
 import { inject, injectable } from 'inversify';
 
-import { IssuesHelper } from '../helpers/issue-helper';
-import { Logic } from '../api/logic';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PullRequestReviewsHelper } from '../helpers/pr-review-helper';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
-import { SlackHelper } from '../helpers/slack-helper';
+import { IssuesHelper } from '/@/helpers/issue-helper';
+import { Logic } from '/@/api/logic';
+import { PullRequestInfo } from '/@/info/pull-request-info';
+import { PullRequestReviewsHelper } from '/@/helpers/pr-review-helper';
+import { PushListener } from '/@/api/push-listener';
+import { ScheduleListener } from '/@/api/schedule-listener';
+import { SlackHelper } from '/@/helpers/slack-helper';
 import { readFile } from 'node:fs/promises';
-import { render } from 'mustache';
+import mustache from 'mustache';
 import { resolve } from 'node:path';
 
 interface PullRequestInfoForMustache {
@@ -64,9 +64,9 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       this.pullRequestsToReviewMustacheStatusStateTemplate = await readFile(filePath, 'utf-8');
     }
 
-    // using graphql query, get all PR that a user needs to review
-    // for each PR, get the user that needs to review it
-    // send a message to the user
+    // Using graphql query, get all PR that a user needs to review
+    // For each PR, get the user that needs to review it
+    // Send a message to the user
 
     const githubUsernames = [
       'amisskii',
@@ -96,7 +96,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
     }
   }
 
-  // add canvas or update the existing canvas for the user
+  // Add canvas or update the existing canvas for the user
   async createOrUpdateReport(githubUsername: string): Promise<void> {
     if (!this.pullRequestsToReviewMustacheTemplate) {
       console.error('Could not load the mustache templates');
@@ -113,7 +113,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
     if (!slackUser) {
       const errorMessage = `No slack user found for git username ${githubUsername}`;
 
-      // notify admin
+      // Notify admin
       await this.slackHelper.notifyAdmin(errorMessage);
       console.error(errorMessage);
       return;
@@ -121,13 +121,13 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
 
     const allRawPrs = await this.pullRequestReviewsHelper.getPullRequestsToReview(githubUsername);
 
-    // need to adjust the age field to always have the same length
-    // first, compute the max length of this field
+    // Need to adjust the age field to always have the same length
+    // First, compute the max length of this field
     const maxAgeLength = allRawPrs.reduce((max, pr) => {
       return Math.max(max, pr.age.length);
     }, 0);
 
-    // then adjust the age field by adding spaces in front of the field to have maxAgeLength characters
+    // Then adjust the age field by adding spaces in front of the field to have maxAgeLength characters
     allRawPrs.forEach(pr => {
       const currentLength = pr.age.length;
       const diff = maxAgeLength - currentLength;
@@ -136,7 +136,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       }
     });
 
-    // sort by last time the PR was updated using the last commit date
+    // Sort by last time the PR was updated using the last commit date
     allRawPrs.sort((a, b) => {
       const dateA = new Date(a.lastCommitDate);
       const dateB = new Date(b.lastCommitDate);
@@ -144,13 +144,15 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       return dateA.getTime() - dateB.getTime();
     });
 
-    // extract dependabot and non-dependabot PRs
+    // Extract dependabot and non-dependabot PRs
     const DEPENDABOT_AUTHOR = 'dependabot';
     const allPrs = allRawPrs.map(prInfo => this.enhancePr(prInfo));
     const dependabotPrs = allRawPrs
       .filter(pr => pr.author === DEPENDABOT_AUTHOR)
-      .map(prInfo => render(infoTemplate, this.enhancePr(prInfo)));
-    const usersPrs = allRawPrs.filter(pr => pr.author !== DEPENDABOT_AUTHOR).map(prInfo => render(infoTemplate, this.enhancePr(prInfo)));
+      .map(prInfo => mustache.render(infoTemplate, this.enhancePr(prInfo)));
+    const usersPrs = allRawPrs
+      .filter(pr => pr.author !== DEPENDABOT_AUTHOR)
+      .map(prInfo => mustache.render(infoTemplate, this.enhancePr(prInfo)));
 
     const report = {
       username: githubUsername,
@@ -159,32 +161,32 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       dependabotPrs,
     };
 
-    // create the report content from the template
-    const reportContent = render(this.pullRequestsToReviewMustacheTemplate, { report });
+    // Create the report content from the template
+    const reportContent = mustache.render(this.pullRequestsToReviewMustacheTemplate, { report });
 
-    // need to send the report to the user using canva
+    // Need to send the report to the user using canva
 
     await this.slackHelper.createOrUpdateCanvas(
       slackUser,
       `✨Pull Request Review Report for ${githubUsername}`,
       `for ${githubUsername}`,
-      reportContent
+      reportContent,
     );
   }
 
-  // try to make a short name from a repository name
+  // Try to make a short name from a repository name
   makeShortRepo(repo: string): string {
     if ('podman-desktop' === repo) {
       return 'PD';
     }
 
-    // replace the word 'podman-desktop-extension' by the word 'ext' in repo string
+    // Replace the word 'podman-desktop-extension' by the word 'ext' in repo string
     let shortRepo = repo.replace('podman-desktop-extension', 'ext');
 
-    // replace the word 'podman-desktop-' by the word 'PD-' in repo string
+    // Replace the word 'podman-desktop-' by the word 'PD-' in repo string
     shortRepo = shortRepo.replace('podman-desktop-', 'PD-');
 
-    // replace the word 'extension' by the word 'ext' in repo string
+    // Replace the word 'extension' by the word 'ext' in repo string
     shortRepo = shortRepo.replace('extension', 'ext');
 
     return shortRepo;
@@ -202,7 +204,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       isReviewRequired: pr.reviewState === 'REVIEW_REQUIRED',
       isPending: pr.reviewState === 'PENDING',
     };
-    const reviewState = render(reviewStateTemplate, prReviewStateData);
+    const reviewState = mustache.render(reviewStateTemplate, prReviewStateData);
 
     const statusStateTemplate = this.pullRequestsToReviewMustacheStatusStateTemplate;
     if (!statusStateTemplate) {
@@ -218,7 +220,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       isUnexpected: pr.statusState === 'UNEXPECTED',
       isUnknown: pr.statusState === 'UNKNOWN',
     };
-    const statusState = render(statusStateTemplate, prStatusData);
+    const statusState = mustache.render(statusStateTemplate, prStatusData);
 
     const shortRepo = this.makeShortRepo(pr.repo);
 

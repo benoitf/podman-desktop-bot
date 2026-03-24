@@ -15,7 +15,7 @@ export class PullRequestInfoLinkedIssuesExtractor {
 
     const issuesFound: string[] = [];
 
-    // now extract github issues from this block with full format
+    // Now extract github issues from this block with full format
     const issueLongMatch = /https:\/\/github\.com\/.*?\/issues\/\d*/gm;
     let issueLongMatchResult: RegExpExecArray | null;
 
@@ -24,7 +24,7 @@ export class PullRequestInfoLinkedIssuesExtractor {
       issuesFound.push(issueLongMatchResult[0].replace('https://github.com/', 'https://api.github.com/repos/'));
     }
 
-    // now extract github issues from short format
+    // Now extract github issues from short format
     const issueShortMatch = /#(\d+)/gm;
     let issueShortMatchResult: RegExpExecArray | null;
 

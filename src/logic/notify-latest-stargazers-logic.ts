@@ -1,11 +1,10 @@
-import { inject, injectable, named } from 'inversify';
+import { inject, injectable } from 'inversify';
 
-import { Logic } from '../api/logic';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
-import { SlackHelper } from '../helpers/slack-helper';
-import { StargazerHelper } from '../helpers/stargazer-helper';
+import { Logic } from '/@/api/logic';
+import { PushListener } from '/@/api/push-listener';
+import { ScheduleListener } from '/@/api/schedule-listener';
+import { SlackHelper } from '/@/helpers/slack-helper';
+import { StargazerHelper } from '/@/helpers/stargazer-helper';
 
 @injectable()
 export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, PushListener {
@@ -22,36 +21,36 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, Pus
   }
 
   async execute(): Promise<void> {
-    // grab recent stargazers
+    // Grab recent stargazers
     const recentStargazers = await this.stargazerHelper.getRecentStargazers();
     console.log('recent stargazers length is', recentStargazers.length);
     await Promise.all(
       recentStargazers.map(async stargazer => {
         const elements: { type: string; text?: string; image_url?: string; alt_text?: string }[] = [];
-        // build message
+        // Build message
 
-        // first, add the star
+        // First, add the star
         elements.push({
           type: 'mrkdwn',
           text: ':star:',
         });
 
-        // first, add the avatar
+        // First, add the avatar
         elements.push({
           type: 'image',
           image_url: stargazer.avatarUrl,
           alt_text: stargazer.login,
         });
 
-        // the name
+        // The name
         let markdownText = `*<${stargazer.url}|${stargazer.login}>*`;
 
-        // company ?
+        // Company ?
         if (stargazer.company) {
           markdownText += ` working at *${stargazer.company}*`;
         }
 
-        // email ?
+        // Email ?
         if (stargazer.email) {
           markdownText += ` (${stargazer.email})`;
         }
@@ -60,7 +59,7 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, Pus
           markdownText += ` (<https://twitter.com/${stargazer.twitterUsername}|@${stargazer.twitterUsername}>)`;
         }
 
-        // bio ?
+        // Bio ?
         if (stargazer.bio) {
           markdownText += `${stargazer.bio}`;
         }
@@ -79,7 +78,7 @@ export class NotifyLatestStargazersLogic implements Logic, ScheduleListener, Pus
           ],
         };
         await this.slackHelper.sendMessage(message);
-      })
+      }),
     );
   }
 }

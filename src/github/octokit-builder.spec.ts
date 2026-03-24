@@ -1,9 +1,8 @@
-import 'reflect-metadata';
-
+import { beforeEach, describe, expect, test } from 'vitest';
 import { Container } from 'inversify';
-import { OctokitBuilder } from '../../src/github/octokit-builder';
+import { OctokitBuilder } from './octokit-builder';
 
-describe('Test OctokitBuilder', () => {
+describe('test OctokitBuilder', () => {
   let container: Container;
 
   beforeEach(() => {
@@ -11,10 +10,13 @@ describe('Test OctokitBuilder', () => {
     container.bind(OctokitBuilder).toSelf().inSingletonScope();
   });
 
-  test('test able to create', async () => {
+  test('able to create', async () => {
+    expect.assertions(1);
+
     const octokitBuilder = container.get(OctokitBuilder);
 
     const octokit = octokitBuilder.build('foo');
+
     expect(octokit).toBeDefined();
   });
 });

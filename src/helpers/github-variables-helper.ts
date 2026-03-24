@@ -22,8 +22,8 @@ export class GitHubVariablesHelper {
         name: 'LAST_CHECK',
       });
       this.lastCheck = response.data.value;
-    } catch (error: any) {
-      if (error.status !== 404) {
+    } catch (error: unknown) {
+      if (error instanceof Error && 'status' in error && (error as { status: number }).status !== 404) {
         throw error;
       }
     }
@@ -44,9 +44,9 @@ export class GitHubVariablesHelper {
         name: 'LAST_CHECK',
         value,
       });
-    } catch (error: any) {
-    console.log(`Error updating LAST_CHECK,`, error);
-      if (error.status === 404) {
+    } catch (error: unknown) {
+      console.log(`Error updating LAST_CHECK,`, error);
+      if (error instanceof Error && 'status' in error && (error as { status: number }).status === 404) {
         await this.octokitWrite.rest.actions.createRepoVariable({
           owner: REPO_OWNER,
           repo: REPO_NAME,

@@ -1,4 +1,4 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 
 export class StargazerInfo {
   private __starredAt: string;

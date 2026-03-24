@@ -1,6 +1,6 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
-import { StargazerInfo, StargazerInfoBuilder } from '../info/stargazer-info';
+import { StargazerInfo, StargazerInfoBuilder } from '/@/info/stargazer-info';
 import { inject, injectable, named } from 'inversify';
 
 import { GitHubVariablesHelper } from './github-variables-helper';
@@ -25,11 +25,11 @@ export class StargazerHelper {
     const lastCheckValue = this.gitHubVariablesHelper.getLastCheck();
     console.log('getRecentStargazers/LAST_CHECK=' + lastCheckValue);
 
-    // last check performed
+    // Last check performed
     const lastCheck = moment(lastCheckValue);
     const recentStargazers = await this.doGetRecentStargazers(lastCheck);
 
-    // received array of edges looking like:
+    // Received array of edges looking like:
     //
     // [
     // {
@@ -60,12 +60,16 @@ export class StargazerHelper {
         .withWebsiteUrl(item.node.websiteUrl)
         .withTwitterUsername(item.node.twitterUsername)
         .withUrl(item.node.url)
-        .withAvatarUrl(item.node.avatarUrl)
+        .withAvatarUrl(item.node.avatarUrl),
     );
     return starGazers;
   }
 
-  protected async doGetRecentStargazers(lastTimeCheck: moment.Moment, cursor?: string, previousStargazers?: unknown[]): Promise<unknown[]> {
+  protected async doGetRecentStargazers(
+    lastTimeCheck: moment.Moment,
+    cursor?: string,
+    previousStargazers?: unknown[],
+  ): Promise<unknown[]> {
     const query = `
     query getRecentStargazers($cursorAfter: String) {
       rateLimit {
@@ -116,20 +120,26 @@ export class StargazerHelper {
       allGraphQlResponse = graphQlResponse.repository.stargazers.edges;
     }
 
-    // last check in the current request
+    // Last check in the current request
     const currentCheck = moment(allGraphQlResponse[allGraphQlResponse.length - 1].starredAt);
     let isOlder = false;
     if (currentCheck.isBefore(lastTimeCheck)) {
       isOlder = true;
     }
 
-    // filter out all results that are old
-    allGraphQlResponse = allGraphQlResponse.filter((item: any) => moment(item.starredAt).isAfter(lastTimeCheck));
+    // Filter out all results that are old
+    allGraphQlResponse = allGraphQlResponse.filter((item: Record<string, unknown>) =>
+      moment(item.starredAt as string).isAfter(lastTimeCheck),
+    );
 
-    // need to loop again if there are more and that last check has been performed after the current date
+    // Need to loop again if there are more and that last check has been performed after the current date
     if (graphQlResponse.repository.stargazers.pageInfo.hasNextPage && !isOlder) {
-      // needs to redo the search starting from the last search
-      return await this.doGetRecentStargazers(lastTimeCheck, graphQlResponse.repository.stargazers.pageInfo.endCursor, allGraphQlResponse);
+      // Needs to redo the search starting from the last search
+      return await this.doGetRecentStargazers(
+        lastTimeCheck,
+        graphQlResponse.repository.stargazers.pageInfo.endCursor,
+        allGraphQlResponse,
+      );
     }
 
     return allGraphQlResponse;

@@ -1,8 +1,8 @@
-import { ContainerModule, interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { PodmanDesktopVersionFetcher } from './podman-desktop-version-fetcher';
 
-const fetchersModule = new ContainerModule((bind: interfaces.Bind) => {
+const fetchersModule = new ContainerModule(({ bind }) => {
   bind(PodmanDesktopVersionFetcher).toSelf().inSingletonScope();
 });
 

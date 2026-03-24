@@ -1,9 +1,8 @@
-import 'reflect-metadata';
-
+import { beforeEach, describe, expect, test } from 'vitest';
 import { Container } from 'inversify';
-import { IssueInfoBuilder } from '../../src/info/issue-info';
+import { IssueInfoBuilder } from './issue-info';
 
-describe('Test IssueInfo', () => {
+describe('test IssueInfo', () => {
   let container: Container;
 
   beforeEach(() => {
@@ -11,16 +10,19 @@ describe('Test IssueInfo', () => {
     container.bind(IssueInfoBuilder).toSelf().inSingletonScope();
   });
 
-  test('test info', async () => {
+  test('info', async () => {
+    expect.assertions(4);
+
     const issueInfoBuilder = container.get(IssueInfoBuilder);
+
     expect(issueInfoBuilder).toBeDefined();
 
-    const htmlLink = 'http://foo';
+    const htmlLink = 'https://foo';
 
     const issueInfo = issueInfoBuilder.build().withHtmlLink(htmlLink).withLabels(['foobar']);
 
     expect(issueInfo.htmlLink).toBe(htmlLink);
-    expect(issueInfo.hasLabel('foobar')).toBeTruthy();
-    expect(issueInfo.hasLabel('baz')).toBeFalsy();
+    expect(issueInfo.hasLabel('foobar')).toBe(true);
+    expect(issueInfo.hasLabel('baz')).toBe(false);
   });
 });
