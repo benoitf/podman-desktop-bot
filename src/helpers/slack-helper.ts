@@ -1,5 +1,6 @@
 import { inject, injectable, named, postConstruct } from 'inversify';
 
+import { GitHubVariablesHelper } from './github-variables-helper';
 import { WebClient } from '@slack/web-api';
 import axios from 'axios';
 import { readFile } from 'node:fs/promises';
@@ -22,9 +23,8 @@ export class SlackHelper {
   @inject('SlackWebClient')
   private slackWebClient: WebClient;
 
-  @inject('string')
-  @named('LAST_SLACK_CHECK')
-  private lastSlackCheck: string;
+  @inject(GitHubVariablesHelper)
+  private gitHubVariablesHelper: GitHubVariablesHelper;
 
   private mappingUserToChannel: Map<string, SlackMappingJson> = new Map<string, SlackMappingJson>();
 
@@ -132,12 +132,13 @@ export class SlackHelper {
   }
 
   protected async shouldNotifyUser(slackUser: SlackMappingJson): Promise<boolean> {
-    // convert lastSlackCheck to a date using the timezone of the user
+    // convert lastCheck to a date using the timezone of the user
+    const lastSlackCheck = this.gitHubVariablesHelper.getLastCheck();
 
     // get the timezone of the user to be within new york
     const timezone = slackUser.notify?.tz;
     if (timezone) {
-      const lastSlackCheckDate = new Date(this.lastSlackCheck);
+      const lastSlackCheckDate = new Date(lastSlackCheck);
       const lastSlackCheckDateInUserTimeZone = new Date(lastSlackCheckDate.toLocaleString('en-US', { timeZone: timezone }));
       const now = new Date();
       const nowInUserTimezone = new Date(now.toLocaleString('en-US', { timeZone: timezone }));

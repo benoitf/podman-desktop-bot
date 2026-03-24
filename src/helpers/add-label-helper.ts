@@ -2,7 +2,6 @@ import { inject, injectable, named } from 'inversify';
 
 import { GitHub } from '@actions/github/lib/utils';
 import { IssueInfo } from '../info/issue-info';
-import { RestEndpointMethodTypes } from '@octokit/rest';
 
 type Octokit = InstanceType<typeof GitHub>;
 
@@ -21,14 +20,12 @@ export class AddLabelHelper {
       return;
     }
 
-    const params: RestEndpointMethodTypes['issues']['addLabels']['parameters'] = {
+    await this.octokit.rest.issues.addLabels({
       // eslint-disable-next-line @typescript-eslint/camelcase
       issue_number: issueInfo.number,
       labels: remainingLabelsToAdd,
       owner: issueInfo.owner,
       repo: issueInfo.repo,
-    };
-
-    await this.octokit.rest.issues.addLabels(params);
+    });
   }
 }

@@ -9,7 +9,6 @@ import { IssueInfo, IssueInfoBuilder } from '../../src/info/issue-info';
 
 import { Container } from 'inversify';
 import { IssuesHelper } from '../../src/helpers/issue-helper';
-import { Octokit } from '@octokit/rest';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 describe('Test Helper IssueHelper', () => {

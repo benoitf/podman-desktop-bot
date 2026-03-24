@@ -7,7 +7,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import { Container } from 'inversify';
-import { Octokit } from '@octokit/rest';
 import { TagsHelper } from '../../src/helpers/tags-helper';
 import axios from 'axios';
 import { graphql } from '@octokit/graphql';

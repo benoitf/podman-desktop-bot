@@ -3,7 +3,6 @@ import 'reflect-metadata';
 import { Analysis } from './analysis';
 import { Container } from 'inversify';
 import { Logic } from './api/logic';
-import { Octokit } from '@octokit/rest';
 import { OctokitBuilder } from './github/octokit-builder';
 import { WebClient } from '@slack/web-api';
 import { apisModule } from './api/apis-module';
@@ -20,9 +19,7 @@ export class InversifyBinding {
     private writeToken: string,
     private readToken: string,
     private slackUrl: string,
-    private lastStargazersCheck: string,
     private slackToken: string,
-    private lastSlackCheck: string
   ) {}
 
   public async initBindings(): Promise<Container> {
@@ -44,8 +41,6 @@ export class InversifyBinding {
     this.container.bind('Octokit').toConstantValue(readOctokit).whenTargetNamed('READ_TOKEN');
     this.container.bind('string').toConstantValue(`token ${this.readToken}`).whenTargetNamed('GRAPHQL_READ_TOKEN');
     this.container.bind('string').toConstantValue(`token ${this.writeToken}`).whenTargetNamed('GRAPHQL_WRITE_TOKEN');
-    this.container.bind('string').toConstantValue(this.lastStargazersCheck).whenTargetNamed('LAST_STARGAZERS_CHECK');
-    this.container.bind('string').toConstantValue(this.lastSlackCheck).whenTargetNamed('LAST_SLACK_CHECK');
 
     this.container.bind('slack-url').toConstantValue(this.slackUrl);
     const webClient = new WebClient(this.slackToken);

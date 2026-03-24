@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import { StargazerInfo, StargazerInfoBuilder } from '../info/stargazer-info';
 import { inject, injectable, named } from 'inversify';
 
+import { GitHubVariablesHelper } from './github-variables-helper';
 import { graphql } from '@octokit/graphql';
 
 /**
@@ -14,17 +15,18 @@ export class StargazerHelper {
   @named('GRAPHQL_READ_TOKEN')
   private graphqlReadToken: string;
 
-  @inject('string')
-  @named('LAST_STARGAZERS_CHECK')
-  private lastStargazersCheck: string;
+  @inject(GitHubVariablesHelper)
+  private gitHubVariablesHelper: GitHubVariablesHelper;
 
   @inject(StargazerInfoBuilder)
   private stargazerInfoBuilder: StargazerInfoBuilder;
 
   public async getRecentStargazers(): Promise<StargazerInfo[]> {
-    console.log('getRecentStargazers/LAST_STARGAZERS_CHECK=' + this.lastStargazersCheck);
+    const lastCheckValue = this.gitHubVariablesHelper.getLastCheck();
+    console.log('getRecentStargazers/LAST_CHECK=' + lastCheckValue);
+
     // last check performed
-    const lastCheck = moment(this.lastStargazersCheck);
+    const lastCheck = moment(lastCheckValue);
     const recentStargazers = await this.doGetRecentStargazers(lastCheck);
 
     // received array of edges looking like:

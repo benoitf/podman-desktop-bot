@@ -3,8 +3,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 
-import * as fs from 'fs-extra';
-import * as path from 'path';
 
 import { PullRequestInfo, PullRequestInfoBuilder } from '../../src/info/pull-request-info';
 import { TagDefinition, TagsHelper } from '../../src/helpers/tags-helper';
@@ -12,12 +10,8 @@ import { TagDefinition, TagsHelper } from '../../src/helpers/tags-helper';
 import { ApplyMilestoneOnPullRequestsLogic } from '../../src/logic/apply-milestone-on-pull-requests-logic';
 import { Container } from 'inversify';
 import { IssueMilestoneHelper } from '../../src/helpers/issue-milestone-helper';
-import { MilestoneHelper } from '../../src/helpers/milestone-helper';
-import { Octokit } from '@octokit/rest';
 import { PodmanDesktopVersionFetcher } from '../../src/fetchers/podman-desktop-version-fetcher';
 import { PullRequestsHelper } from '../../src/helpers/pull-requests-helper';
-import axios from 'axios';
-import { graphql } from '@octokit/graphql';
 
 describe('Test Apply Milestone Logic', () => {
   let container: Container;

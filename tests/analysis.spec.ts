@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { Analysis } from '../src/analysis';
 import { Container } from 'inversify';
+import { GitHubVariablesHelper } from '../src/helpers/github-variables-helper';
 import { Handler } from '../src/api/handler';
 import { bindMultiInjectProvider } from '../src/api/multi-inject-provider';
 
@@ -11,6 +12,11 @@ describe('Test Analysis', () => {
   beforeEach(() => {
     container = new Container();
     bindMultiInjectProvider(container, Handler);
+    const mockGitHubVariablesHelper = {
+      getLastCheck: jest.fn().mockReturnValue(''),
+      updateLastCheck: jest.fn().mockResolvedValue(undefined),
+    } as unknown as GitHubVariablesHelper;
+    container.bind(GitHubVariablesHelper).toConstantValue(mockGitHubVariablesHelper);
     container.bind(Analysis).toSelf().inSingletonScope();
   });
 

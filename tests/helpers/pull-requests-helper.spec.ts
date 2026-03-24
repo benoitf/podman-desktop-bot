@@ -11,7 +11,6 @@ import { CheRepositoriesFetcher } from '../../src/fetchers/che-repositories-fetc
 import { Container } from 'inversify';
 import { IssueInfoBuilder } from '../../src/info/issue-info';
 import { IssuesHelper } from '../../src/helpers/issue-helper';
-import { Octokit } from '@octokit/rest';
 import { PullRequestInfoBuilder } from '../../src/info/pull-request-info';
 import { PullRequestInfoLinkedIssuesExtractor } from '../../src/info/pull-request-info-linked-issues-extractor';
 import { PullRequestsHelper } from '../../src/helpers/pull-requests-helper';
@@ -40,7 +39,7 @@ describe('Test Helper PullRequestHelper', () => {
     jest.mock('axios');
     (axios as any).__setContent(CheRepositoriesFetcher.CHE_REPOSITORIES_YAML, yaml);
 
-    container.bind(Octokit).toConstantValue(octokit);
+    container.bind('Octokit').toConstantValue(octokit);
     container.bind('string').toConstantValue('fooToken').whenTargetNamed('GRAPHQL_READ_TOKEN');
   });
 

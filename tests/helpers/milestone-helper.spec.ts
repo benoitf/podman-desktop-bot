@@ -9,7 +9,6 @@ import * as path from 'path';
 import { MilestoneDefinition, MilestoneHelper } from '../../src/helpers/milestone-helper';
 
 import { Container } from 'inversify';
-import { Octokit } from '@octokit/rest';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import { graphql } from '@octokit/graphql';
 
