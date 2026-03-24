@@ -1,4 +1,4 @@
-import { ContainerModule, interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { AddLabelHelper } from './add-label-helper';
 import { GitHubVariablesHelper } from './github-variables-helper';
@@ -13,7 +13,7 @@ import { SlackHelper } from './slack-helper';
 import { StargazerHelper } from './stargazer-helper';
 import { TagsHelper } from './tags-helper';
 
-const helpersModule = new ContainerModule((bind: interfaces.Bind) => {
+const helpersModule = new ContainerModule(({ bind }) => {
   bind(AddLabelHelper).toSelf().inSingletonScope();
   bind(GitHubVariablesHelper).toSelf().inSingletonScope();
   bind(IssuesHelper).toSelf().inSingletonScope();

@@ -24,6 +24,7 @@ export class InversifyBinding {
 
   public async initBindings(): Promise<Container> {
     this.container = new Container();
+    this.container.bind(Container).toConstantValue(this.container);
 
     this.container.load(apisModule);
     this.container.load(fetchersModule);
@@ -32,31 +33,31 @@ export class InversifyBinding {
     this.container.load(infosModule);
     this.container.load(logicModule);
 
-    // token
+    // Token
     this.container.bind(OctokitBuilder).toSelf().inSingletonScope();
     const writeOctokit = this.container.get(OctokitBuilder).build(this.writeToken);
-    this.container.bind('Octokit').toConstantValue(writeOctokit).whenTargetNamed('WRITE_TOKEN');
+    this.container.bind('Octokit').toConstantValue(writeOctokit).whenNamed('WRITE_TOKEN');
 
     const readOctokit = this.container.get(OctokitBuilder).build(this.readToken);
-    this.container.bind('Octokit').toConstantValue(readOctokit).whenTargetNamed('READ_TOKEN');
-    this.container.bind('string').toConstantValue(`token ${this.readToken}`).whenTargetNamed('GRAPHQL_READ_TOKEN');
-    this.container.bind('string').toConstantValue(`token ${this.writeToken}`).whenTargetNamed('GRAPHQL_WRITE_TOKEN');
+    this.container.bind('Octokit').toConstantValue(readOctokit).whenNamed('READ_TOKEN');
+    this.container.bind('string').toConstantValue(`token ${this.readToken}`).whenNamed('GRAPHQL_READ_TOKEN');
+    this.container.bind('string').toConstantValue(`token ${this.writeToken}`).whenNamed('GRAPHQL_WRITE_TOKEN');
 
     this.container.bind('slack-url').toConstantValue(this.slackUrl);
     const webClient = new WebClient(this.slackToken);
     this.container.bind('SlackWebClient').toConstantValue(webClient);
 
-    this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_SET_MILESTONE_PER_RUN');
-    this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_CREATE_MILESTONE_PER_RUN');
-    this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_UPDATE_MILESTONE_PER_RUN');
+    this.container.bind('number').toConstantValue(50).whenNamed('MAX_SET_MILESTONE_PER_RUN');
+    this.container.bind('number').toConstantValue(50).whenNamed('MAX_CREATE_MILESTONE_PER_RUN');
+    this.container.bind('number').toConstantValue(50).whenNamed('MAX_UPDATE_MILESTONE_PER_RUN');
 
-    this.container.bind('number').toConstantValue(50).whenTargetNamed('MAX_SET_ISSUES_PER_RUN');
+    this.container.bind('number').toConstantValue(50).whenNamed('MAX_SET_ISSUES_PER_RUN');
 
     // Analyze
     this.container.bind(Analysis).toSelf().inSingletonScope();
 
-    // resolve all logics to create instances
-    this.container.getAllAsync(Logic);
+    // Resolve all logics to create instances
+    await this.container.getAllAsync(Logic);
 
     return this.container;
   }

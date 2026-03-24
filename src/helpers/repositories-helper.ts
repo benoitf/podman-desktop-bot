@@ -1,4 +1,4 @@
-import { inject, injectable, named } from 'inversify';
+import { injectable } from 'inversify';
 
 @injectable()
 export class RepositoriesHelper {
@@ -19,7 +19,7 @@ export class RepositoriesHelper {
       'redhat-developer/podman-desktop-redhat-pack-ext',
       'crc-org/macadam.js',
       'crc-org/crc-extension',
-      'minc-org/minc-extension'
+      'minc-org/minc-extension',
     ];
   }
 

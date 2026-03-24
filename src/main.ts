@@ -11,25 +11,25 @@ export class Main {
   public static readonly SLACK_TOKEN: string = 'slack_token';
 
   protected async doStart(): Promise<void> {
-    // github write token
+    // Github write token
     const writeToken = core.getInput(Main.WRITE_TOKEN);
     if (!writeToken) {
       throw new Error('No Write Token provided');
     }
 
-    // github read token
+    // Github read token
     const readToken = core.getInput(Main.READ_TOKEN);
     if (!readToken) {
       throw new Error('No Read Token provided');
     }
 
-    // slack URL
+    // Slack URL
     const slackUrl = core.getInput(Main.SLACK_URL);
     if (!slackUrl) {
       throw new Error('No Slack Url provided');
     }
 
-    // slack Token
+    // Slack Token
     const slackToken = core.getInput(Main.SLACK_TOKEN);
     if (!slackToken) {
       throw new Error('No Slack token provided');
@@ -45,9 +45,9 @@ export class Main {
     try {
       await this.doStart();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error);
-      core.setFailed(error.message);
+      core.setFailed(error instanceof Error ? error.message : String(error));
       return false;
     }
   }

@@ -1,12 +1,10 @@
-import { ContainerModule, interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
-import { Handler } from '../api/handler';
+import { Handler } from '/@/api/handler';
 import { PushHandler } from './push-handler';
 import { ScheduleHandler } from './schedule-handler';
-import { bindMultiInjectProvider } from '../api/multi-inject-provider';
 
-const handlersModule = new ContainerModule((bind: interfaces.Bind) => {
-  bindMultiInjectProvider(bind, Handler);
+const handlersModule = new ContainerModule(({ bind }) => {
   bind(Handler).to(ScheduleHandler).inSingletonScope();
   bind(Handler).to(PushHandler).inSingletonScope();
 });

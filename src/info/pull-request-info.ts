@@ -1,9 +1,9 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { inject, injectable } from 'inversify';
 
 import { IssueInfo } from './issue-info';
-import { IssuesHelper } from '../helpers/issue-helper';
+import { IssuesHelper } from '/@/helpers/issue-helper';
 import { PullRequestInfoLinkedIssuesExtractor } from './pull-request-info-linked-issues-extractor';
 
 export type StatusState = 'SUCCESS' | 'FAILURE' | 'ERROR' | 'PENDING' | 'EXPECTED' | 'UNEXPECTED' | 'UNKNOWN';
@@ -48,7 +48,7 @@ export class PullRequestInfo extends IssueInfo {
 
   public computeAge(): PullRequestInfo {
     const lastCommitDate = new Date(this.__lastCommitDate);
-    // use momentjs to do the diff
+    // Use momentjs to do the diff
     const valDuration = moment.duration(moment().diff(moment(lastCommitDate)));
 
     this.__age = `${valDuration.humanize()}`;
@@ -156,8 +156,8 @@ export class PullRequestInfoBuilder {
   async resolve(pullRequestInfo: PullRequestInfo): Promise<void> {
     const extractedLinkedIssues = this.pullRequestInfoLinkedIssuesExtractor.extract(pullRequestInfo);
     const linkedIssues: IssueInfo[] = [];
-    // grab labels on the linked issues
-    for await (const extractedLinkedIssue of extractedLinkedIssues) {
+    // Grab labels on the linked issues
+    for (const extractedLinkedIssue of extractedLinkedIssues) {
       const linkedIssueInfo = await this.issuesHelper.getIssue(extractedLinkedIssue);
       if (linkedIssueInfo) {
         linkedIssues.push(linkedIssueInfo);

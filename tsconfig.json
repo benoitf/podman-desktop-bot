@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "sourceMap": true,
     "noEmitOnError": true,
-    "noImplicitReturns" : true,
+    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": false,
     "removeComments": true,
@@ -15,18 +15,14 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "types": ["reflect-metadata", "jest"],
+    "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
-  }
-,
-  "include": [
-    "src/**/*"
-  ]
-,
-  "exclude": [
-    "node_modules",
-    "server"
-  ]
+    "paths": {
+      "/@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "server"]
 }

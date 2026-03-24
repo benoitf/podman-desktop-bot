@@ -1,6 +1,6 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
-import { PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
+import { PullRequestInfo, PullRequestInfoBuilder } from '/@/info/pull-request-info';
 import { inject, injectable, named } from 'inversify';
 
 import { graphql } from '@octokit/graphql';
@@ -21,7 +21,7 @@ export class PullRequestsHelper {
     console.log('Query String =', queryString);
     const lastMergedPullRequestSearch = await this.doGetRecentMerged(queryString);
 
-    // received array of edges looking like:
+    // Received array of edges looking like:
     //
     // [
     //       {
@@ -52,13 +52,17 @@ export class PullRequestsHelper {
         .withRepo(item.node.repository.name)
         .withOwner(item.node.repository.owner.login)
         .withHtmlLink(item.node.url)
-        .withMergingBranch(item.node.baseRefName)
+        .withMergingBranch(item.node.baseRefName),
     );
 
     return pullRequests;
   }
 
-  protected async doGetRecentMerged(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
+  protected async doGetRecentMerged(
+    queryString: string,
+    cursor?: string,
+    previousMilestones?: unknown[],
+  ): Promise<unknown[]> {
     const query = `
     query getMergedPRs($queryString: String!, $cursorAfter: String) {
       rateLimit {
@@ -116,9 +120,9 @@ export class PullRequestsHelper {
       allGraphQlResponse = graphQlResponse.search.edges;
     }
 
-    // need to loop again
+    // Need to loop again
     if (graphQlResponse.search.pageInfo.hasNextPage) {
-      // needs to redo the search starting from the last search
+      // Needs to redo the search starting from the last search
       return await this.doGetRecentMerged(queryString, graphQlResponse.search.pageInfo.endCursor, allGraphQlResponse);
     }
 

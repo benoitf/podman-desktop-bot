@@ -1,6 +1,6 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
-import { IssueInfo, IssueInfoBuilder } from '../info/issue-info';
+import { IssueInfo, IssueInfoBuilder } from '/@/info/issue-info';
 import { inject, injectable, named } from 'inversify';
 
 import { GitHub } from '@actions/github/lib/utils';
@@ -40,7 +40,7 @@ export class IssuesHelper {
     const queryString = `repo:podman-desktop/podman-desktop is:issue created:>=${afterDate}`;
     const lastNewIssuesSearch = await this.doGetRecentIssues(queryString);
 
-    // received array of edges looking like:
+    // Received array of edges looking like:
     //
     // [
     //   {
@@ -108,31 +108,36 @@ export class IssuesHelper {
     //   ],
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const issues: IssueInfo[] = lastNewIssuesSearch.map((item: any) =>
+    const issues: IssueInfo[] = (lastNewIssuesSearch as Record<string, any>[]).map((item: Record<string, any>) =>
       this.issueInfoBuilder
         .build()
         .withCreatedAt(item.node.createdAt)
-        .withLabels(item.node.labels?.nodes?.map((label: any) => label?.name))
+        .withLabels(item.node.labels?.nodes?.map((label: Record<string, unknown>) => label?.name))
         .withNumber(item.node.number)
         .withRepo(item.node.repository.name)
         .withOwner(item.node.repository.owner.login)
         .withHtmlLink(item.node.url)
         .withId(item.node.id)
         .withProjectItems(
-          item.node.projectItems?.nodes?.map((nodeItem: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          item.node.projectItems?.nodes?.map((nodeItem: Record<string, any>) => {
             return {
               name: nodeItem?.fieldValueByName?.name,
               projectId: nodeItem?.project.id,
               projectNumber: nodeItem?.fieldValueByName?.field.project.number,
             };
-          })
-        )
+          }),
+        ),
     );
 
     return issues;
   }
 
-  protected async doGetRecentIssues(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
+  protected async doGetRecentIssues(
+    queryString: string,
+    cursor?: string,
+    previousMilestones?: unknown[],
+  ): Promise<unknown[]> {
     const query = `
       query getRecentIssues($queryString: String!, $cursorAfter: String) {
         rateLimit {
@@ -218,9 +223,9 @@ export class IssuesHelper {
       allGraphQlResponse = graphQlResponse.search.edges;
     }
 
-    // need to loop again
+    // Need to loop again
     if (graphQlResponse.search.pageInfo.hasNextPage) {
-      // needs to redo the search starting from the last search
+      // Needs to redo the search starting from the last search
       return await this.doGetRecentIssues(queryString, graphQlResponse.search.pageInfo.endCursor, allGraphQlResponse);
     }
 
@@ -228,32 +233,32 @@ export class IssuesHelper {
   }
 
   public async getIssue(issueLink: string): Promise<IssueInfo | undefined> {
-    const parsingRegexp = /(?:\/repos\/)(.*)\/(.*)(?:\/issues\/)(\d+)/g;
+    const parsingRegexp = /(?:\/repos\/)([^/]*)\/([^/]*)(?:\/issues\/)(\d+)/g;
 
     const parsing = parsingRegexp.exec(issueLink);
 
     // eslint-disable-next-line no-null/no-null
-    if (parsing === null || parsing.length !== 4) {
+    if (parsing?.length !== 4) {
       return undefined;
     }
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     const issueGetParam: RestEndpointMethodTypes['issues']['get']['parameters'] = {
       owner: parsing[1],
       repo: parsing[2],
-      // eslint-disable-next-line @typescript-eslint/camelcase
       issue_number: parseInt(parsing[3]),
     };
 
     const response = await this.octokit.rest.issues.get(issueGetParam);
     const issueGetReponse = response.data;
 
-    const labels: string[] = issueGetReponse.labels.map((label: any) => label?.name);
+    const labels: string[] = issueGetReponse.labels.map((label: string | { name?: string }) =>
+      typeof label === 'string' ? label : (label?.name ?? ''),
+    );
 
     return this.issueInfoBuilder
       .build()
-      .withBody(issueGetReponse.body || '')
-      .withAuthor(issueGetReponse.user?.login || '')
+      .withBody(issueGetReponse.body ?? '')
+      .withAuthor(issueGetReponse.user?.login ?? '')
       .withHtmlLink(issueGetReponse.html_url)
       .withNumber(issueGetReponse.number)
       .withOwner(issueGetParam.owner)

@@ -1,8 +1,8 @@
-import { inject, injectable, named, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from 'inversify';
 
 import { GitHubVariablesHelper } from './github-variables-helper';
 import { WebClient } from '@slack/web-api';
-import axios from 'axios';
+
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -36,7 +36,7 @@ export class SlackHelper {
 
   @postConstruct()
   async init(): Promise<void> {
-    // read the file slack-github-user-mapping.json and add the content to the map
+    // Read the file slack-github-user-mapping.json and add the content to the map
     const mappingPath = resolve(__dirname, '../../slack-github-user-mapping.json');
     const content = await readFile(mappingPath, 'utf8');
 
@@ -45,7 +45,7 @@ export class SlackHelper {
       this.mappingUserToChannel.set(key, slackUserMapping[key]);
     }
 
-    // call ths slack api to get data about ourself
+    // Call ths slack api to get data about ourself
     const authData = await this.slackWebClient.auth.test();
 
     if (!authData.user_id) {
@@ -69,32 +69,39 @@ export class SlackHelper {
     return this.mappingUserToChannel.get(gitUser);
   }
 
-  public async sendMessage(message: any): Promise<void> {
-    await axios.post(this.slackurl, message);
+  public async sendMessage(message: Record<string, unknown>): Promise<void> {
+    const response = await fetch(this.slackurl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    });
+    if (!response.ok) {
+      throw new Error(`Slack webhook request failed with status ${response.status}`);
+    }
   }
 
   public async createOrUpdateCanvas(
     slackUser: SlackMappingJson,
     canvasTitle: string,
     searchPatternExistingCanva: string,
-    content: string
+    content: string,
   ): Promise<void> {
-    // do we have an existing canva for this user ?
-    // list all canvases for the bot
+    // Do we have an existing canva for this user ?
+    // List all canvases for the bot
     const response = await this.slackWebClient.files.list({ types: 'canvases', user: this.userId });
     if (!response.ok) {
       const errorMessage = `Cannot list the canvases for the user ${this.userId}`;
       console.error(errorMessage);
-      this.notifyAdmin(errorMessage);
+      await this.notifyAdmin(errorMessage);
       return;
     }
 
-    // check if we have a canvas with the title ending with searchPatternExistingCanva
+    // Check if we have a canvas with the title ending with searchPatternExistingCanva
     const existingCanvas = response.files?.find(file => file.title?.endsWith(searchPatternExistingCanva));
 
     let canvasId: string | undefined;
     if (!existingCanvas) {
-      // create a new canvas
+      // Create a new canvas
       canvasId = await this.createCanvas(canvasTitle, slackUser);
     } else {
       canvasId = existingCanvas.id;
@@ -103,11 +110,11 @@ export class SlackHelper {
     if (!canvasId) {
       const errorMessage = `Could not find the canvas id for the canvas with the title ${canvasTitle}`;
       console.error(errorMessage);
-      this.notifyAdmin(errorMessage);
+      await this.notifyAdmin(errorMessage);
       return;
     }
 
-    // set the content of the canvas
+    // Set the content of the canvas
     await this.slackWebClient.canvases.edit({
       canvas_id: canvasId,
       changes: [
@@ -121,29 +128,32 @@ export class SlackHelper {
       ],
     });
 
-    // now, need to notify the user but it depends on the timezone of the user
+    // Now, need to notify the user but it depends on the timezone of the user
     const shouldNotify = await this.shouldNotifyUser(slackUser);
     if (shouldNotify) {
       await this.sendDirectMessage(
         slackUser.id,
-        `Check the ${canvasTitle} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`
+        `Check the ${canvasTitle} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`,
       );
     }
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   protected async shouldNotifyUser(slackUser: SlackMappingJson): Promise<boolean> {
-    // convert lastCheck to a date using the timezone of the user
+    // Convert lastCheck to a date using the timezone of the user
     const lastSlackCheck = this.gitHubVariablesHelper.getLastCheck();
 
-    // get the timezone of the user to be within new york
+    // Get the timezone of the user to be within new york
     const timezone = slackUser.notify?.tz;
     if (timezone) {
       const lastSlackCheckDate = new Date(lastSlackCheck);
-      const lastSlackCheckDateInUserTimeZone = new Date(lastSlackCheckDate.toLocaleString('en-US', { timeZone: timezone }));
+      const lastSlackCheckDateInUserTimeZone = new Date(
+        lastSlackCheckDate.toLocaleString('en-US', { timeZone: timezone }),
+      );
       const now = new Date();
       const nowInUserTimezone = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
 
-      // within the same day ?
+      // Within the same day ?
       const days = slackUser.notify?.days;
       if (days) {
         const day = nowInUserTimezone.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
@@ -152,7 +162,7 @@ export class SlackHelper {
         }
       }
 
-      //now look at all the times
+      //Now look at all the times
       const times = slackUser.notify?.times;
       if (times) {
         for (const time of times) {
@@ -172,31 +182,39 @@ export class SlackHelper {
     return false;
   }
 
-  // create a new canvas
+  // Create a new canvas
   public async createCanvas(title: string, slackUser: SlackMappingJson): Promise<string | undefined> {
     const response = await this.slackWebClient.canvases.create({ title });
-    // get the canvas id
+    // Get the canvas id
     const canvasId = response.canvas_id;
     if (canvasId) {
-      // share it with the user and with the admin
-      await this.slackWebClient.canvases.access.set({ canvas_id: canvasId, access_level: 'read', user_ids: [slackUser.id] });
-      await this.slackWebClient.canvases.access.set({ canvas_id: canvasId, access_level: 'write', user_ids: [this.slackAdminUserId] });
+      // Share it with the user and with the admin
+      await this.slackWebClient.canvases.access.set({
+        canvas_id: canvasId,
+        access_level: 'read',
+        user_ids: [slackUser.id],
+      });
+      await this.slackWebClient.canvases.access.set({
+        canvas_id: canvasId,
+        access_level: 'write',
+        user_ids: [this.slackAdminUserId],
+      });
     }
-    // notify the admin
+    // Notify the admin
     await this.notifyAdmin(
-      `Created a new canvas with the title ${title} and id ${canvasId} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`
+      `Created a new canvas with the title ${title} and id ${canvasId} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`,
     );
 
-    // notify the user
+    // Notify the user
     await this.sendDirectMessage(
       slackUser.id,
-      `Created a new canvas: ${title} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`
+      `Created a new canvas: ${title} <${this.slackUrl}docs/${this.teamId}/${canvasId}|Link to the canvas>`,
     );
 
     return canvasId;
   }
 
-  public async sendDirectMessage(userId: string, message: string) {
+  public async sendDirectMessage(userId: string, message: string): Promise<void> {
     await this.slackWebClient.chat.postMessage({ channel: userId, text: message });
   }
 

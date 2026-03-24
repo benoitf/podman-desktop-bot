@@ -16,7 +16,7 @@ export class TagsHelper {
   public async getLatestTags(): Promise<Map<string, TagDefinition[]>> {
     const latestTagSearch = await this.doGetLatestTags('repo:podman-desktop/podman-desktop');
 
-    // received array of edges looking like:
+    // Received array of edges looking like:
     // [
     // {
     //     "refs": {
@@ -45,9 +45,7 @@ export class TagsHelper {
         const committedDate = subitem.node.target.committedDate;
         const nameWithOwner = subitem.node.repository.nameWithOwner;
         let tagDefinitions = mapping.get(nameWithOwner);
-        if (!tagDefinitions) {
-          tagDefinitions = [];
-        }
+        tagDefinitions ??= [];
         tagDefinitions.push({ name, committedDate });
         mapping.set(nameWithOwner, tagDefinitions);
       });
@@ -56,7 +54,11 @@ export class TagsHelper {
     return mapping;
   }
 
-  protected async doGetLatestTags(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
+  protected async doGetLatestTags(
+    queryString: string,
+    cursor?: string,
+    previousMilestones?: unknown[],
+  ): Promise<unknown[]> {
     const query = `
     query getTags($queryString: String!, $cursorAfter: String) {
         rateLimit {
@@ -112,9 +114,9 @@ export class TagsHelper {
       allGraphQlResponse = graphQlResponse.search.nodes;
     }
 
-    // need to loop again
+    // Need to loop again
     if (graphQlResponse.search.pageInfo.hasNextPage) {
-      // needs to redo the search starting from the last search
+      // Needs to redo the search starting from the last search
       return await this.doGetLatestTags(queryString, graphQlResponse.search.pageInfo.endCursor, allGraphQlResponse);
     }
 

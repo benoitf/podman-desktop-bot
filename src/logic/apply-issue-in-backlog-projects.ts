@@ -1,13 +1,13 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { inject, injectable, named } from 'inversify';
 
-import { IssuesHelper } from '../helpers/issue-helper';
-import { Logic } from '../api/logic';
-import { ProjectsHelper } from '../helpers/projects-helper';
-import { PullRequestInfo } from '../info/pull-request-info';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
+import { IssuesHelper } from '/@/helpers/issue-helper';
+import { Logic } from '/@/api/logic';
+import { ProjectsHelper } from '/@/helpers/projects-helper';
+import { PullRequestInfo } from '/@/info/pull-request-info';
+import { PushListener } from '/@/api/push-listener';
+import { ScheduleListener } from '/@/api/schedule-listener';
 
 export interface MilestoneDefinition {
   pullRequestInfo: PullRequestInfo;
@@ -33,31 +33,33 @@ export class ApplyProjectsOnIssuesLogic implements Logic, ScheduleListener, Push
   }
 
   async execute(): Promise<void> {
-    // get all recent issues
+    // Get all recent issues
     const issues = await this.issuesHelper.getRecentIssues(moment.duration(1, 'hour'));
 
-    // already in the planning project, skip it
+    // Already in the planning project, skip it
     const filteredIssues = issues.filter(
-      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOB71_hM4AxfY6')
+      issue => !issue.projectItems.some(projectItem => projectItem.projectId === 'PVT_kwDOB71_hM4AxfY6'),
     );
 
-    // now that we have issues
-    // sets the project planning with backlog column
+    // Now that we have issues
+    // Sets the project planning with backlog column
     console.log(`issues to set planning project: ${filteredIssues.length}`);
 
     if (filteredIssues.length > this.maxSetMIssuesPerRun) {
       filteredIssues.length = this.maxSetMIssuesPerRun;
-      console.log(`issues to set planning project > ${this.maxSetMIssuesPerRun}, keep only ${this.maxSetMIssuesPerRun} for this run`);
+      console.log(
+        `issues to set planning project > ${this.maxSetMIssuesPerRun}, keep only ${this.maxSetMIssuesPerRun} for this run`,
+      );
     }
 
     if (filteredIssues.length > 0) {
       filteredIssues.length = 1;
     }
 
-    // apply label
-    // do update of milestones in all repositories
-    for await (const entry of filteredIssues) {
-      // do not flush too many calls at once on github
+    // Apply label
+    // Do update of milestones in all repositories
+    for (const entry of filteredIssues) {
+      // Do not flush too many calls at once on github
       await this.wait(500);
       await this.projectsHelper.setBacklogProjects(entry);
     }

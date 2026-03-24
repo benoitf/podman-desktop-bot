@@ -1,4 +1,4 @@
-import { CheckContext, PullRequestInfo, PullRequestInfoBuilder } from '../info/pull-request-info';
+import { CheckContext, PullRequestInfo, PullRequestInfoBuilder } from '/@/info/pull-request-info';
 import { inject, injectable, named } from 'inversify';
 
 import { RepositoriesHelper } from './repositories-helper';
@@ -31,35 +31,39 @@ export class PullRequestReviewsHelper {
       .map(org => `org:${org}`)
       .join(' ');
 
-    // we want to get all dependabot PRs that are open, not draft, with dependabot as author
-    // status:success is not used as it only checks the legacy commit status API, not check runs/check suites
-    // filter out also the one we already approved
-    // instead, we get all PRs and then filter by statusState and checkContexts to exclude the bot check contexts and rely on the rollup state only if no individual check contexts are available
+    // We want to get all dependabot PRs that are open, not draft, with dependabot as author
+    // Status:success is not used as it only checks the legacy commit status API, not check runs/check suites
+    // Filter out also the one we already approved
+    // Instead, we get all PRs and then filter by statusState and checkContexts to exclude the bot check contexts and rely on the rollup state only if no individual check contexts are available
     const queryString = `${organizationsQuery} ${repositoriesQuery} is:pr is:open draft:false author:dependabot[bot] -reviewed-by:podman-desktop-bot`;
 
     const allPullRequests = await this.getPullRequests(queryString);
 
-    // filter out all PRS that have a failed check
-    // and exclude domain check status after that
-    return allPullRequests.filter(pr => pr.statusState !== 'FAILURE').filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
+    // Filter out all PRS that have a failed check
+    // And exclude domain check status after that
+    return allPullRequests
+      .filter(pr => pr.statusState !== 'FAILURE')
+      .filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
   }
 
   private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo): boolean {
-    // if no individual check contexts available, fall back to the rollup state
+    // If no individual check contexts available, fall back to the rollup state
     if (pr.checkContexts.length === 0) {
       return pr.statusState === 'SUCCESS';
     }
 
     const filteredChecks = pr.checkContexts.filter(
-      check => !PullRequestReviewsHelper.BOT_CHECK_NAMES_TO_EXCLUDE.includes(check.name)
+      check => !PullRequestReviewsHelper.BOT_CHECK_NAMES_TO_EXCLUDE.includes(check.name),
     );
 
-    // if all checks were excluded, fall back to accepting
+    // If all checks were excluded, fall back to accepting
     if (filteredChecks.length === 0) {
       return true;
     }
 
-    return filteredChecks.every(check => check.state === 'SUCCESS' || check.state === 'NEUTRAL' || check.state === 'SKIPPED');
+    return filteredChecks.every(
+      check => check.state === 'SUCCESS' || check.state === 'NEUTRAL' || check.state === 'SKIPPED',
+    );
   }
 
   public async getPullRequestsToReview(username: string): Promise<PullRequestInfo[]> {
@@ -81,24 +85,27 @@ export class PullRequestReviewsHelper {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pullRequests: PullRequestInfo[] = lastMergedPullRequestSearch.map((item: any) => {
-      return this.pullRequestInfoBuilder
-        .build()
-        .withId(item.node.id)
-        .withMergedAt(item.node.mergedAt)
-        .withBody(item.node.body)
-        .withNumber(item.node.number)
-        .withRepo(item.node.repository.name)
-        .withOwner(item.node.repository.owner.login)
-        .withHtmlLink(item.node.url)
-        .withTitle(item.node.title)
-        .withMergingBranch(item.node.baseRefName)
-        .withStatusState(item.node.statusCheckRollup?.state ?? 'UNKNOWN')
-        .withCheckContexts(this.extractCheckContexts(item.node.statusCheckRollup?.contexts?.nodes))
-        .withReviewState(item.node.reviewDecision)
-        .withAuthor(item.node.author.login)
-        .withAutoMergeEnabled(item.node.autoMergeRequest !== null)
-        .withLastCommitDate(item.node.commits.nodes?.[0]?.commit?.committedDate)
-        .computeAge();
+      return (
+        this.pullRequestInfoBuilder
+          .build()
+          .withId(item.node.id)
+          .withMergedAt(item.node.mergedAt)
+          .withBody(item.node.body)
+          .withNumber(item.node.number)
+          .withRepo(item.node.repository.name)
+          .withOwner(item.node.repository.owner.login)
+          .withHtmlLink(item.node.url)
+          .withTitle(item.node.title)
+          .withMergingBranch(item.node.baseRefName)
+          .withStatusState(item.node.statusCheckRollup?.state ?? 'UNKNOWN')
+          .withCheckContexts(this.extractCheckContexts(item.node.statusCheckRollup?.contexts?.nodes))
+          .withReviewState(item.node.reviewDecision)
+          .withAuthor(item.node.author.login)
+          // eslint-disable-next-line no-null/no-null
+          .withAutoMergeEnabled(item.node.autoMergeRequest !== undefined && item.node.autoMergeRequest !== null)
+          .withLastCommitDate(item.node.commits.nodes?.[0]?.commit?.committedDate)
+          .computeAge()
+      );
     });
 
     return pullRequests;
@@ -159,7 +166,11 @@ export class PullRequestReviewsHelper {
     });
   }
 
-  protected async doGetPullRequestsToReview(queryString: string, cursor?: string, previousMilestones?: unknown[]): Promise<unknown[]> {
+  protected async doGetPullRequestsToReview(
+    queryString: string,
+    cursor?: string,
+    previousMilestones?: unknown[],
+  ): Promise<unknown[]> {
     const query = `
     query getPullRequestsToReview($queryString: String!, $cursorAfter: String) {
       rateLimit {
@@ -236,6 +247,7 @@ export class PullRequestReviewsHelper {
     }
     `;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const graphQlResponse: any = await graphql(query, {
       queryString: queryString,
       cursorAfter: cursor,
@@ -251,10 +263,14 @@ export class PullRequestReviewsHelper {
       allGraphQlResponse = graphQlResponse.search.edges;
     }
 
-    // need to loop again
+    // Need to loop again
     if (graphQlResponse.search.pageInfo.hasNextPage) {
-      // needs to redo the search starting from the last search
-      return await this.doGetPullRequestsToReview(queryString, graphQlResponse.search.pageInfo.endCursor, allGraphQlResponse);
+      // Needs to redo the search starting from the last search
+      return await this.doGetPullRequestsToReview(
+        queryString,
+        graphQlResponse.search.pageInfo.endCursor,
+        allGraphQlResponse,
+      );
     }
 
     return allGraphQlResponse;

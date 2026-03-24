@@ -1,19 +1,16 @@
-import { ContainerModule, interfaces } from 'inversify';
+import { ContainerModule } from 'inversify';
 
 import { ApplyMilestoneOnPullRequestsLogic } from './apply-milestone-on-pull-requests-logic';
 import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';
 import { ApplyTriageOnIssuesLogic } from './apply-triage-on-issues-logic';
 import { ApproveAndMergeDependabotPRLogic } from './approve-and-merge-dependabot-pr';
-import { Logic } from '../api/logic';
+import { Logic } from '/@/api/logic';
 import { NotifyLatestStargazersLogic } from './notify-latest-stargazers-logic';
 import { NotifySlackPeoplePullRequestReviewLogic } from './notify-slack-people-for-pr-review';
-import { PushListener } from '../api/push-listener';
-import { ScheduleListener } from '../api/schedule-listener';
-import { bindMultiInjectProvider } from '../api/multi-inject-provider';
+import { PushListener } from '/@/api/push-listener';
+import { ScheduleListener } from '/@/api/schedule-listener';
 
-const logicModule = new ContainerModule((bind: interfaces.Bind) => {
-  bindMultiInjectProvider(bind, Logic);
-
+const logicModule = new ContainerModule(({ bind }) => {
   bind(ApplyProjectsOnIssuesLogic).to(ApplyProjectsOnIssuesLogic).inSingletonScope();
   bind(ScheduleListener).toService(ApplyProjectsOnIssuesLogic);
   bind(PushListener).toService(ApplyProjectsOnIssuesLogic);

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import 'reflect-metadata';
 
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Container } from 'inversify';
-import { PullRequestInfoLinkedIssuesExtractor } from '../../src/info/pull-request-info-linked-issues-extractor';
+import { PullRequestInfoLinkedIssuesExtractor } from './pull-request-info-linked-issues-extractor';
 
-describe('Test PullRequestInfoLinkedIssuesExtractor', () => {
+describe('test PullRequestInfoLinkedIssuesExtractor', () => {
   let container: Container;
 
   beforeEach(() => {
@@ -15,48 +15,63 @@ describe('Test PullRequestInfoLinkedIssuesExtractor', () => {
     container.bind(PullRequestInfoLinkedIssuesExtractor).toSelf().inSingletonScope();
   });
 
-  test('test extract with several links in full format (http://github.....)', async () => {
+  test('extract with several links in full format (http://github.....)', async () => {
+    expect.assertions(2);
+
     const pullRequestInfoLinkedIssuesExtractor = container.get(PullRequestInfoLinkedIssuesExtractor);
+
     expect(pullRequestInfoLinkedIssuesExtractor).toBeDefined();
 
-    const txt: string = await fs.readFile(path.join(__dirname, '..', '_data', 'pull-request-info', 'multiple-links.md'), 'utf8');
+    const txt: string = await fs.readFile(
+      path.join(__dirname, '..', '_data', 'pull-request-info', 'multiple-links.md'),
+      'utf8',
+    );
 
-    const pullRequestInfo = jest.fn() as any;
+    const pullRequestInfo = vi.fn<(...args: unknown[]) => unknown>() as any;
     pullRequestInfo.body = txt;
     const issues = pullRequestInfoLinkedIssuesExtractor.extract(pullRequestInfo);
 
-    expect(issues).toEqual([
+    expect(issues).toStrictEqual([
       'https://api.github.com/repos/eclipse/che/issues/16045',
       'https://api.github.com/repos/eclipse/che/issues/16046',
     ]);
   });
 
-  test('test extract with several links in short format #5', async () => {
+  test('extract with several links in short format #5', async () => {
+    expect.assertions(2);
+
     const pullRequestInfoLinkedIssuesExtractor = container.get(PullRequestInfoLinkedIssuesExtractor);
+
     expect(pullRequestInfoLinkedIssuesExtractor).toBeDefined();
 
     const txt: string = await fs.readFile(
       path.join(__dirname, '..', '_data', 'pull-request-info', 'multiple-links-short-format.md'),
-      'utf8'
+      'utf8',
     );
 
-    const pullRequestInfo = jest.fn() as any;
+    const pullRequestInfo = vi.fn<(...args: unknown[]) => unknown>() as any;
     pullRequestInfo.body = txt;
     pullRequestInfo.owner = 'eclipse';
     pullRequestInfo.repo = 'che';
     const issues = pullRequestInfoLinkedIssuesExtractor.extract(pullRequestInfo);
 
-    expect(issues).toEqual(['https://api.github.com/repos/eclipse/che/issues/15', 'https://api.github.com/repos/eclipse/che/issues/16']);
+    expect(issues).toStrictEqual([
+      'https://api.github.com/repos/eclipse/che/issues/15',
+      'https://api.github.com/repos/eclipse/che/issues/16',
+    ]);
   });
 
-  test('test empty text', async () => {
+  test('empty text', async () => {
+    expect.assertions(2);
+
     const pullRequestInfoLinkedIssuesExtractor = container.get(PullRequestInfoLinkedIssuesExtractor);
+
     expect(pullRequestInfoLinkedIssuesExtractor).toBeDefined();
 
-    const pullRequestInfo = jest.fn() as any;
+    const pullRequestInfo = vi.fn<(...args: unknown[]) => unknown>() as any;
     pullRequestInfo.body = 'dummy content';
     const issues = pullRequestInfoLinkedIssuesExtractor.extract(pullRequestInfo);
 
-    expect(issues).toEqual([]);
+    expect(issues).toStrictEqual([]);
   });
 });
