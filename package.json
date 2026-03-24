@@ -42,7 +42,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
-    "build": "yarn run lint && yarn run test && yarn run compile",
+    "build": "pnpm run lint && pnpm run test && pnpm run compile",
     "compile": "tsc --project . && cpx './src/template/*.md' './dist/template' --clean",
     "format": "prettier --write **/*.ts **/**/*.ts package.json tests/_data/**/*.* tests/_data/**/**/*.*",
     "format-check": "prettier --check **/*.ts **/**/*.ts",
@@ -89,5 +89,5 @@
       "parser": "typescript"
     }
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
 }
