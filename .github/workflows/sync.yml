@@ -36,8 +36,9 @@ jobs:
         git add last-run.txt
         git commit -m "Keep workflow alive" || true
         git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/benoitf/podman-desktop-bot.git" info || true
+    - uses: pnpm/action-setup@v4
     - name: synchronize
       run: |
-        yarn
-        yarn run compile
+        pnpm install
+        pnpm run compile
         node dist/entrypoint.js
