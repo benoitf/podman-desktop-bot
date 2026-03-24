@@ -3,8 +3,7 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { GitHubVariablesHelper } from './github-variables-helper';
 import { WebClient } from '@slack/web-api';
 
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import mappingJson from '/@slack-github-user-mapping.json' with { type: 'json' };
 
 export interface SlackMappingJson {
   id: string;
@@ -36,13 +35,9 @@ export class SlackHelper {
 
   @postConstruct()
   async init(): Promise<void> {
-    // Read the file slack-github-user-mapping.json and add the content to the map
-    const mappingPath = resolve(__dirname, '../../slack-github-user-mapping.json');
-    const content = await readFile(mappingPath, 'utf8');
-
-    const slackUserMapping = JSON.parse(content);
-    for (const key in slackUserMapping) {
-      this.mappingUserToChannel.set(key, slackUserMapping[key]);
+    // Load the slack-github-user-mapping into the map
+    for (const key in mappingJson) {
+      this.mappingUserToChannel.set(key, (mappingJson as Record<string, SlackMappingJson>)[key]);
     }
 
     // Call ths slack api to get data about ourself

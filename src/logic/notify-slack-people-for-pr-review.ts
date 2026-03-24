@@ -7,9 +7,11 @@ import { PullRequestReviewsHelper } from '/@/helpers/pr-review-helper';
 import { PushListener } from '/@/api/push-listener';
 import { ScheduleListener } from '/@/api/schedule-listener';
 import { SlackHelper } from '/@/helpers/slack-helper';
-import { readFile } from 'node:fs/promises';
 import mustache from 'mustache';
-import { resolve } from 'node:path';
+import pullRequestsToReviewTemplate from '/@templates/pull-requests-to-review.mustache?raw';
+import pullRequestsToReviewPrInfoTemplate from '/@templates/pull-requests-to-review-pr-info.mustache?raw';
+import pullRequestsToReviewPrReviewStateTemplate from '/@templates/pull-requests-to-review-pr-review-state.mustache?raw';
+import pullRequestsToReviewPrStatusStateTemplate from '/@templates/pull-requests-to-review-pr-status-state.mustache?raw';
 
 interface PullRequestInfoForMustache {
   age: string;
@@ -35,11 +37,6 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
   @inject(SlackHelper)
   private slackHelper: SlackHelper;
 
-  private pullRequestsToReviewMustacheTemplate: string | undefined;
-  private pullRequestsToReviewMustacheInfoTemplate: string | undefined;
-  private pullRequestsToReviewMustacheReviewStateTemplate: string | undefined;
-  private pullRequestsToReviewMustacheStatusStateTemplate: string | undefined;
-
   async wait(ms: number): Promise<void> {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
@@ -47,23 +44,6 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
   }
 
   async execute(): Promise<void> {
-    if (!this.pullRequestsToReviewMustacheTemplate) {
-      const filePath = resolve(__dirname, '../../templates/pull-requests-to-review.mustache');
-      this.pullRequestsToReviewMustacheTemplate = await readFile(filePath, 'utf-8');
-    }
-    if (!this.pullRequestsToReviewMustacheInfoTemplate) {
-      const filePath = resolve(__dirname, '../../templates/pull-requests-to-review-pr-info.mustache');
-      this.pullRequestsToReviewMustacheInfoTemplate = await readFile(filePath, 'utf-8');
-    }
-    if (!this.pullRequestsToReviewMustacheReviewStateTemplate) {
-      const filePath = resolve(__dirname, '../../templates/pull-requests-to-review-pr-review-state.mustache');
-      this.pullRequestsToReviewMustacheReviewStateTemplate = await readFile(filePath, 'utf-8');
-    }
-    if (!this.pullRequestsToReviewMustacheStatusStateTemplate) {
-      const filePath = resolve(__dirname, '../../templates/pull-requests-to-review-pr-status-state.mustache');
-      this.pullRequestsToReviewMustacheStatusStateTemplate = await readFile(filePath, 'utf-8');
-    }
-
     // Using graphql query, get all PR that a user needs to review
     // For each PR, get the user that needs to review it
     // Send a message to the user
@@ -98,16 +78,6 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
 
   // Add canvas or update the existing canvas for the user
   async createOrUpdateReport(githubUsername: string): Promise<void> {
-    if (!this.pullRequestsToReviewMustacheTemplate) {
-      console.error('Could not load the mustache templates');
-      return;
-    }
-    const infoTemplate = this.pullRequestsToReviewMustacheInfoTemplate;
-    if (!infoTemplate) {
-      console.error('Could not load the mustache info template');
-      return;
-    }
-
     const slackUser = this.slackHelper.getMappedGitUserToSlackUser(githubUsername);
 
     if (!slackUser) {
@@ -149,10 +119,10 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
     const allPrs = allRawPrs.map(prInfo => this.enhancePr(prInfo));
     const dependabotPrs = allRawPrs
       .filter(pr => pr.author === DEPENDABOT_AUTHOR)
-      .map(prInfo => mustache.render(infoTemplate, this.enhancePr(prInfo)));
+      .map(prInfo => mustache.render(pullRequestsToReviewPrInfoTemplate, this.enhancePr(prInfo)));
     const usersPrs = allRawPrs
       .filter(pr => pr.author !== DEPENDABOT_AUTHOR)
-      .map(prInfo => mustache.render(infoTemplate, this.enhancePr(prInfo)));
+      .map(prInfo => mustache.render(pullRequestsToReviewPrInfoTemplate, this.enhancePr(prInfo)));
 
     const report = {
       username: githubUsername,
@@ -162,7 +132,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
     };
 
     // Create the report content from the template
-    const reportContent = mustache.render(this.pullRequestsToReviewMustacheTemplate, { report });
+    const reportContent = mustache.render(pullRequestsToReviewTemplate, { report });
 
     // Need to send the report to the user using canva
 
@@ -193,23 +163,13 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
   }
 
   enhancePr(pr: PullRequestInfo): PullRequestInfoForMustache {
-    const reviewStateTemplate = this.pullRequestsToReviewMustacheReviewStateTemplate;
-    if (!reviewStateTemplate) {
-      throw new Error('Could not load the mustache review state template');
-    }
-
     const prReviewStateData = {
       isApproved: pr.reviewState === 'APPROVED',
       isChangesRequested: pr.reviewState === 'CHANGES_REQUESTED',
       isReviewRequired: pr.reviewState === 'REVIEW_REQUIRED',
       isPending: pr.reviewState === 'PENDING',
     };
-    const reviewState = mustache.render(reviewStateTemplate, prReviewStateData);
-
-    const statusStateTemplate = this.pullRequestsToReviewMustacheStatusStateTemplate;
-    if (!statusStateTemplate) {
-      throw new Error('Could not load the mustache status state template');
-    }
+    const reviewState = mustache.render(pullRequestsToReviewPrReviewStateTemplate, prReviewStateData);
 
     const prStatusData = {
       isSuccess: pr.statusState === 'SUCCESS',
@@ -220,7 +180,7 @@ export class NotifySlackPeoplePullRequestReviewLogic implements Logic, ScheduleL
       isUnexpected: pr.statusState === 'UNEXPECTED',
       isUnknown: pr.statusState === 'UNKNOWN',
     };
-    const statusState = mustache.render(statusStateTemplate, prStatusData);
+    const statusState = mustache.render(pullRequestsToReviewPrStatusStateTemplate, prStatusData);
 
     const shortRepo = this.makeShortRepo(pr.repo);
 

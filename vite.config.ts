@@ -10,6 +10,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '/@/': path.resolve(PACKAGE_ROOT, 'src') + '/',
+      '/@templates/': path.resolve(PACKAGE_ROOT, 'templates') + '/',
+      '/@slack-github-user-mapping.json': path.resolve(PACKAGE_ROOT, 'slack-github-user-mapping.json'),
     },
     conditions: ['node'],
     mainFields: ['module', 'main'],

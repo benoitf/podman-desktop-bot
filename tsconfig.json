@@ -18,9 +18,12 @@
     "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "/@/*": ["./src/*"]
+      "/@/*": ["./src/*"],
+      "/@templates/*": ["./templates/*"],
+      "/@slack-github-user-mapping.json": ["./slack-github-user-mapping.json"]
     }
   },
   "include": ["src/**/*"],
