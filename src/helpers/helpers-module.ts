@@ -9,6 +9,7 @@ import { ProjectsHelper } from './projects-helper';
 import { PullRequestReviewsHelper } from './pr-review-helper';
 import { PullRequestsHelper } from './pull-requests-helper';
 import { RepositoriesHelper } from './repositories-helper';
+import { RequiredChecksHelper } from './required-checks-helper';
 import { SlackHelper } from './slack-helper';
 import { StargazerHelper } from './stargazer-helper';
 import { TagsHelper } from './tags-helper';
@@ -25,6 +26,7 @@ const helpersModule = new ContainerModule(({ bind }) => {
   bind(SlackHelper).toSelf().inSingletonScope();
   bind(ProjectsHelper).toSelf().inSingletonScope();
   bind(RepositoriesHelper).toSelf().inSingletonScope();
+  bind(RequiredChecksHelper).toSelf().inSingletonScope();
   bind(PullRequestReviewsHelper).toSelf().inSingletonScope();
 });
 
