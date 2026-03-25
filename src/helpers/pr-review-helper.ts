@@ -1,7 +1,9 @@
-import { CheckContext, PullRequestInfo, PullRequestInfoBuilder } from '/@/info/pull-request-info';
+import type { CheckContext } from '/@/info/pull-request-info';
+import { PullRequestInfo, PullRequestInfoBuilder } from '/@/info/pull-request-info';
 import { inject, injectable, named } from 'inversify';
 
 import { RepositoriesHelper } from './repositories-helper';
+import { RequiredChecksHelper } from './required-checks-helper';
 import { graphql } from '@octokit/graphql';
 
 @injectable()
@@ -21,6 +23,9 @@ export class PullRequestReviewsHelper {
   @inject(RepositoriesHelper)
   private repositoriesHelper: RepositoriesHelper;
 
+  @inject(RequiredChecksHelper)
+  private requiredChecksHelper: RequiredChecksHelper;
+
   public async getDependabotPullRequestsRequiringReviewAndPassingAllChecks(): Promise<PullRequestInfo[]> {
     const repositoriesQuery = this.repositoriesHelper
       .getRepositoriesToWatch()
@@ -39,22 +44,40 @@ export class PullRequestReviewsHelper {
 
     const allPullRequests = await this.getPullRequests(queryString);
 
-    // Filter out all PRS that have a failed check
-    // And exclude domain check status after that
+    // Fetch required checks for each unique owner/repo/branch combo
+    const requiredChecksCache = new Map<string, Set<string>>();
+    for (const pr of allPullRequests) {
+      const key = `${pr.owner}/${pr.repo}/${pr.mergingBranch}`;
+      if (!requiredChecksCache.has(key)) {
+        const requiredChecks = await this.requiredChecksHelper.getRequiredChecks(pr.owner, pr.repo, pr.mergingBranch);
+        requiredChecksCache.set(key, requiredChecks);
+      }
+    }
+
+    // Filter out all PRs that have a failed required check
     return allPullRequests
       .filter(pr => pr.statusState !== 'FAILURE')
-      .filter(pr => this.areAllChecksPassingExcludingBotCheck(pr));
+      .filter(pr => {
+        const key = `${pr.owner}/${pr.repo}/${pr.mergingBranch}`;
+        const requiredChecks = requiredChecksCache.get(key);
+        return this.areAllChecksPassingExcludingBotCheck(pr, requiredChecks);
+      });
   }
 
-  private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo): boolean {
+  private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo, requiredChecks?: Set<string>): boolean {
     // If no individual check contexts available, fall back to the rollup state
     if (pr.checkContexts.length === 0) {
       return pr.statusState === 'SUCCESS';
     }
 
-    const filteredChecks = pr.checkContexts.filter(
+    let filteredChecks = pr.checkContexts.filter(
       check => !PullRequestReviewsHelper.BOT_CHECK_NAMES_TO_EXCLUDE.includes(check.name),
     );
+
+    // If required checks are known, only evaluate those
+    if (requiredChecks && requiredChecks.size > 0) {
+      filteredChecks = filteredChecks.filter(check => requiredChecks.has(check.name));
+    }
 
     // If all checks were excluded, fall back to accepting
     if (filteredChecks.length === 0) {
@@ -157,13 +180,33 @@ export class PullRequestReviewsHelper {
     if (!nodes) {
       return [];
     }
-    return nodes.map(node => {
+    const allChecks = nodes.map(node => {
       if (node.__typename === 'CheckRun') {
-        return { name: node.name, state: node.conclusion ?? node.status, typename: node.__typename };
+        return {
+          name: node.name as string,
+          state: (node.conclusion ?? node.status) as string,
+          typename: node.__typename as string,
+          timestamp: (node.startedAt ?? '') as string,
+        };
       }
       // StatusContext
-      return { name: node.context, state: node.state, typename: node.__typename };
+      return {
+        name: node.context as string,
+        state: node.state as string,
+        typename: node.__typename as string,
+        timestamp: (node.createdAt ?? '') as string,
+      };
     });
+
+    // Deduplicate by name, keeping the most recent entry based on timestamp
+    const deduped = new Map<string, (typeof allChecks)[number]>();
+    for (const check of allChecks) {
+      const existing = deduped.get(check.name);
+      if (!existing || check.timestamp > existing.timestamp) {
+        deduped.set(check.name, check);
+      }
+    }
+    return [...deduped.values()].map(({ name, state, typename }) => ({ name, state, typename }));
   }
 
   protected async doGetPullRequestsToReview(
@@ -213,11 +256,13 @@ export class PullRequestReviewsHelper {
                       name
                       conclusion
                       status
+                      startedAt
                     }
                     ... on StatusContext {
                       __typename
                       context
                       state
+                      createdAt
                     }
                   }
                 }
