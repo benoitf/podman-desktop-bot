@@ -54,14 +54,12 @@ export class PullRequestReviewsHelper {
       }
     }
 
-    // Filter out all PRs that have a failed required check
-    return allPullRequests
-      .filter(pr => pr.statusState !== 'FAILURE')
-      .filter(pr => {
-        const key = `${pr.owner}/${pr.repo}/${pr.mergingBranch}`;
-        const requiredChecks = requiredChecksCache.get(key);
-        return this.areAllChecksPassingExcludingBotCheck(pr, requiredChecks);
-      });
+    // Filter out all PRs that do not have required checks passing
+    return allPullRequests.filter(pr => {
+      const key = `${pr.owner}/${pr.repo}/${pr.mergingBranch}`;
+      const requiredChecks = requiredChecksCache.get(key);
+      return this.areAllChecksPassingExcludingBotCheck(pr, requiredChecks);
+    });
   }
 
   private areAllChecksPassingExcludingBotCheck(pr: PullRequestInfo, requiredChecks?: Set<string>): boolean {
@@ -79,6 +77,12 @@ export class PullRequestReviewsHelper {
       filteredChecks = filteredChecks.filter(check => requiredChecks.has(check.name));
     }
 
+    // Filter out all cancelled jobs that are not resolved
+    // GitHub when cancelling jobs, do not resolve macros but it appears at some point as Cancelled entry
+    // If it contains ${{ }} and is cancelled, we can ignore it as it will never be resolved and should not block the merging of the PR
+    filteredChecks = filteredChecks.filter(
+      check => !(check.state === 'CANCELLED' && check.name.includes('${{') && check.name.includes('}}')),
+    );
     // If all checks were excluded, fall back to accepting
     if (filteredChecks.length === 0) {
       return true;
