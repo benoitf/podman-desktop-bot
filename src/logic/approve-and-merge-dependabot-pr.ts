@@ -104,13 +104,8 @@ export class ApproveAndMergeDependabotPRLogic implements Logic, ScheduleListener
           );
         }
 
-        // Approve the PR only if not already approved
-        if (pullRequest.reviewState !== 'APPROVED') {
-          await this.pullRequestReviewsHelper.approvePullRequest(pullRequest);
-          console.log(`     --> Approved PR ${pullRequest.htmlLink}`);
-        } else {
-          console.log(`     --> PR ${pullRequest.htmlLink} is already approved, skipping approval`);
-        }
+        await this.pullRequestReviewsHelper.approvePullRequest(pullRequest);
+        console.log(`     --> Approved PR ${pullRequest.htmlLink}`);
       } catch (error: unknown) {
         console.error(`   -->Error while setting auto-merge for PR ${pullRequest.htmlLink}:`, error);
       }
