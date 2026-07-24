@@ -5,7 +5,6 @@ import { ApplyProjectsOnIssuesLogic } from './apply-issue-in-backlog-projects';
 import { ApplyTriageOnIssuesLogic } from './apply-triage-on-issues-logic';
 import { ApproveAndMergeDependabotPRLogic } from './approve-and-merge-dependabot-pr';
 import { Logic } from '/@/api/logic';
-import { NotifyLatestStargazersLogic } from './notify-latest-stargazers-logic';
 import { NotifySlackPeoplePullRequestReviewLogic } from './notify-slack-people-for-pr-review';
 import { PushListener } from '/@/api/push-listener';
 import { ScheduleListener } from '/@/api/schedule-listener';
@@ -25,11 +24,6 @@ const logicModule = new ContainerModule(({ bind }) => {
   bind(ScheduleListener).toService(ApplyMilestoneOnPullRequestsLogic);
   bind(PushListener).toService(ApplyMilestoneOnPullRequestsLogic);
   bind(Logic).toService(ApplyMilestoneOnPullRequestsLogic);
-
-  bind(NotifyLatestStargazersLogic).to(NotifyLatestStargazersLogic).inSingletonScope();
-  bind(ScheduleListener).toService(NotifyLatestStargazersLogic);
-  bind(PushListener).toService(NotifyLatestStargazersLogic);
-  bind(Logic).toService(NotifyLatestStargazersLogic);
 
   bind(NotifySlackPeoplePullRequestReviewLogic).to(NotifySlackPeoplePullRequestReviewLogic).inSingletonScope();
   bind(ScheduleListener).toService(NotifySlackPeoplePullRequestReviewLogic);
